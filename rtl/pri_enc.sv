@@ -27,8 +27,10 @@ module pri_enc #(
 
 
 	//***** assign output
-	assign valid = |in ? ENABLE : DISABLE;
-
+	assign valid 
+		= ACT
+			? |in ? ENABLE : DISABLE
+			: &in ? ENABLE : DISABLE;
 
 
 	//***** Generate Mask (Output Constant)
@@ -40,13 +42,13 @@ module pri_enc #(
 			for ( i = 0; i < IN; i = i + ( blk * 2 ) ) begin
 				for ( j = 0; j < blk; j = j + 1 ) begin
 					if ( i + j > ofs ) begin
-						gen_mask[i+j] = `Enable;
+						gen_mask[i+j] = ENABLE;
 					end else begin
-						gen_mask[i+j] = `Disable;
+						gen_mask[i+j] = DISABLE;
 					end
 				end
 				for ( j = 0; j < blk; j = j + 1 ) begin
-					gen_mask[i+j+blk] = `Disable;
+					gen_mask[i+j+blk] = DISABLE;
 				end
 			end
 		end
@@ -65,7 +67,11 @@ module pri_enc #(
 				if ( (gj >> gi) & 1'b1 ) begin : IF_Act
 					bit [IN-1:0]			mask;
 					assign mask = gen_mask((1<<(gi)), gj);
-					assign out_wor = !( |( mask & in ) ) && in[gj];
+					assign out_wor = 
+						ACT 
+							? !( |( mask & in ) ) && in[gj]
+							: ( &( mask | in ) ) && !in[gj];
+							// !( !( &(mask | in ) ) || in[gj] )
 				end
 			end
 		end

@@ -31,20 +31,32 @@ module pri_enc_test;
 
 	integer i;
 	initial begin
-		in <= {IN{1'b0}};
-		#(STEP*5);
-		for ( i = 0; i < IN; i = i + 1 ) begin
-			in <= ( 1 << i );
-			#(STEP);
+		if ( ACT ) begin
+			// Acitve High
+			in <= {IN{1'b0}};
+			#(STEP*5);
+			for ( i = 0; i < IN; i = i + 1 ) begin
+				in <= ( 1 << i );
+				#(STEP);
+			end
+		end else begin
+			// Acitve Low
+			in <= {IN{1'b1}};
+			#(STEP*5);
+			for ( i = 0; i < IN; i = i + 1 ) begin
+				in <= {IN{1'b1}} ^ ( 1 << i );
+				#(STEP);
+			end
 		end
 
+		// check all
 		#(STEP*10);
-
 		in = 0;
 		for ( i = 0; i < (1<<IN); i = i + 1 ) begin
 			in <= in + 1'b1;
 			#(STEP);
 		end
+
 		#(STEP*5);
 		$finish;
 	end
