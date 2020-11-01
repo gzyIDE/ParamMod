@@ -92,8 +92,8 @@ endsw
 #        Simulation Tool Setup         #
 ########################################
 #set SIM_TOOL = "ncverilog"
-set SIM_TOOL = "xmverilog"
-#set SIM_TOOL = "vcs"
+#set SIM_TOOL = "xmverilog"
+set SIM_TOOL = "vcs"
 #set SIM_TOOL = "iverilog"
 
 switch( $SIM_TOOL )
@@ -130,6 +130,7 @@ switch( $SIM_TOOL )
 			-full64 \
 			+define+VCS \
 			+incdir+.include \
+			-debug_access+r \
 		)
 		set SRC_EXT = ( \
 			+xmc_ext+.c \

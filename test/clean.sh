@@ -7,7 +7,7 @@ if [ $str == "y" ]; then
 	rm -rf .simvision
 	rm -rf .bpad
 	rm -rf csrc
-	rm -rf *.daidir
+	rm -rf *.sim.daidir
 	rm -rf verdiLog
 	rm -f xmverilog.*
 	rm -f simvision*.diag
@@ -16,4 +16,6 @@ if [ $str == "y" ]; then
 	rm -f sim_exe
 	rm -f wave.fsdb
 	rm -f novas*
+	rm -f *.sim
+	rm -f *.fsdb
 fi
