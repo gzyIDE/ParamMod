@@ -22,6 +22,8 @@
 `define	Enable				1'b1		// Active High Enable
 `define	Disable_			1'b1		// Active Low Disable
 `define	Enable_				1'b0		// Active Low Enable
+
+/* logic */
 `define	On					1'b1
 `define	Off					1'b0
 `define	High				1'b1
@@ -40,19 +42,19 @@
 
 /***** Useful Macros *****/
 /* range expression for generate, always, function */
-`define Range(Idx,W)		(Idx)*(W)+:(W)				// range expression (recommended)
+`define Range(Idx,W)		(Idx)*(W)+:(W)					// range expression (recommended)
 
 /* standard expression for convenience */
-`define Max(A,B)			(A>B)?A:B					// Return larger of the two
-`define Min(A,B)			(A<B)?A:B					// Return smaller of the two
+`define Max(A,B)			(A>B)?A:B						// Return larger of the two
+`define Min(A,B)			(A<B)?A:B						// Return smaller of the two
 `define Max3(A,B,C)			(A>B)?((A>C)?A:C):((B>C)?B:C)	// Return minmum of the three
 `define Min3(A,B,C)			(A<B)?((A<C)?A:C):((B<C)?B:C)	// Return maximum of the three
 
 /* Functions for counter */
-`define CntUp(VAL,MAX,INC)	(VAL>MAX-INC)?MAX:VAL+INC	// increment
-`define CntDwn(VAL,MIN,DEC)	(VAL<MIN+DEC)?MIN:VAL-DEC	// decrement
+`define CntUp(VAL,MAX,INC)	(VAL>MAX-INC)?MAX:VAL+INC		// increment
+`define CntDwn(VAL,MIN,DEC)	(VAL<MIN+DEC)?MIN:VAL-DEC		// decrement
 
 /* Fraction Adjustment */
-`define CEIL(A,B)			((A/B)+(A%B!=0))			// round up to nearest integer
+`define CEIL(A,B)			((A/B)+(A%B!=0))				// round up to nearest integer
 
 `endif // _STDDEF_H_INCLUDED_
