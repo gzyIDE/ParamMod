@@ -11,9 +11,10 @@
 
 // Priority Encoder
 module pri_enc #(
-	parameter IN = 16,
-	parameter OUT = $clog2(IN),
-	parameter ACT = `High
+	parameter IN = 32,
+	parameter ACT = `High,
+	// constant
+	parameter OUT = $clog2(IN)
 )(
 	input wire [IN-1:0]		in,
 	output wire				valid,

@@ -10,6 +10,10 @@
 `include "stddef.vh"
 `include "sim.vh"
 
+`ifdef NETLIST
+ `timescale 10ps/1ps
+`endif
+
 module pri_enc_test;
 	parameter STEP = 10;
 	parameter IN = 16;
@@ -22,11 +26,15 @@ module pri_enc_test;
 	wire				valid;
 	wire [OUT-1:0]		out;
 
+`ifdef NETLIST
+	pri_enc pri_enc (
+`else
 	pri_enc #(
 		.IN		( IN ),
 		.OUT	( OUT ),
 		.ACT	( ACT )
 	) pri_enc (
+`endif
 		.in		( in ),
 		.valid	( valid ),
 		.out	( out )
@@ -96,6 +104,7 @@ module pri_enc_test;
 		#(STEP*10);
 		in = 0;
 		for ( i = 0; i < (1<<IN); i = i + 1 ) begin
+		//	$display("Checking %d", i);
 			in = in + 1'b1;
 			{valid_ans, out_ans} = gen_answer(in);
 			#(STEP);
