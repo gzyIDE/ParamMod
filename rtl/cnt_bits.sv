@@ -43,7 +43,7 @@ module cnt_bits #(
 		genvar gi, gj;
 		for ( gi = 0; gi < EIN / 2; gi = gi + 1 ) begin : ST0
 			wire [1:0]		res_each;
-			if ( gi < IN ) begin : valid
+			if ( 2*gi+1 < IN ) begin : valid
 				sub_cnt #(
 					.IN		( 1 )
 				) sub_cnt (
@@ -51,6 +51,8 @@ module cnt_bits #(
 					.in2	( ( in[gi*2+1] == ACT ) ),
 					.out	( res_each )
 				);
+			end else if ( 2*gi < IN ) begin : half
+				assign res_each = in[gi*2];
 			end else begin : zero
 				assign res_each = 2'b00;
 			end
