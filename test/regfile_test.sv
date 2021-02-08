@@ -17,9 +17,9 @@ module regfile_test;
 
 	reg						clk;
 	reg						reset_;
-	reg [ADDR*READ-1:0]	raddr;
-	wire [DATA*READ-1:0]	out;
-	reg [WRITE-1:0]		we_;
+	reg [ADDR*READ-1:0]		raddr;
+	wire [DATA*READ-1:0]	rdata;
+	reg [WRITE-1:0]			we_;
 	reg [DATA*WRITE-1:0]	in;
 	reg [ADDR*WRITE-1:0]	waddr;
 
@@ -40,7 +40,7 @@ module regfile_test;
 		.waddr		( waddr ),
 		.we_		( we_ ),
 		.wdata		( in ),
-		.out		( out )
+		.rdata		( rdata )
 	);
 
 	task reg_clear;
