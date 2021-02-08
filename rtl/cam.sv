@@ -1,5 +1,5 @@
 /*
-* <cam.v>
+* <cam.sv>
 * 
 * Copyright (c) 2020 Yosuke Ide
 * 
