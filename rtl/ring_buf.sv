@@ -1,7 +1,7 @@
 /*
 * <ring_buf.sv>
 * 
-* Copyright (c) 2020 Yosuke Ide
+* Copyright (c) 2020-2021 Yosuke Ide
 * 
 * This software is released under the MIT License.
 * http://opensource.org/licenses/mit-license.php
@@ -11,27 +11,34 @@
 
 // Ring buffer
 module ring_buf #(
-	parameter DATA = 64,
-	parameter DEPTH = 16,
-	parameter READ = 4,
-	parameter WRITE= 4,
-	parameter ACT = `Low
+	parameter shortint DATA = 64,
+	parameter shortint DEPTH = 16,
+	parameter byte READ = 4,
+	parameter byte WRITE= 4,
+	parameter bit ACT = `Low,
+	// constant
+	parameter byte ADDR = $clog2(DEPTH)
 )(
 	input wire							clk,
 	input wire							reset_,
 	input wire							flush_,		// clear buffer
+
 	input wire [WRITE-1:0]				we,			// write enable
 	input wire [WRITE-1:0][DATA-1:0]	wd,			// write data
+	output wire [WRITE-1:0][ADDR-1:0]	widx,		// written index
+	output wire [WRITE-1:0]				wv,			// entry is added
+
 	input wire [READ-1:0]				re,			// read enable
 	output wire [READ-1:0][DATA-1:0]	rd,			// read data
-	output wire [READ-1:0]				v,			// read data valid
-	output wire							busy		// entry is full
+	output wire [READ-1:0][ADDR-1:0]	ridx,
+	output wire [READ-1:0]				rv,			// read data valid
+
+	output wire							busy		// some entry may no be accepted
 );
 
 	//***** internal parameters
 	localparam ENABLE = ACT ? `Enable : `Enable_;
 	localparam DISABLE = ACT ? `Disable : `Disable_;
-	localparam ADDR = $clog2(DEPTH);
 	localparam RNUM = $clog2(READ) + 1;
 	localparam WNUM = $clog2(WRITE) + 1;
 
@@ -51,33 +58,45 @@ module ring_buf #(
 	wire [ADDR-1:0]				next_tail;
 
 
+
 	//***** output
-	assign check_ptr = head + ( WRITE - 1 );
+	assign widx = wr_addr;
+	assign ridx = rd_addr;
 	assign busy = valid[check_ptr];
+	assign check_ptr = head + ( WRITE - 1 );
 
 
 	//***** generate address and data
+	bit [$clog2(DEPTH)-1:0]	depth = DEPTH;
 	generate
 		genvar gi, gj;
 		for ( gi = 0; gi < WRITE; gi = gi + 1 ) begin : Loop_write
-			assign wr_addr[gi] = head + gi;
+			assign wr_addr[gi] = 
+				( head + gi < depth )
+					? head + gi
+					: head + gi - depth;
 		end
 
 		for ( gj = 0; gj < READ; gj = gj + 1 ) begin : Loop_read
-			wire [ADDR-1:0]		rd_addr_each;
-			assign rd_addr_each = tail + gj;
-			assign rd_addr[gj] = rd_addr_each;
-
-			/* concatenate */
-			assign rd[gj] = data[rd_addr_each];
-			assign v[gj] = valid[rd_addr_each];
+			assign rd_addr[gj] = 
+				( tail + gj < depth )
+					? tail + gj
+					: tail + gj - depth;
+			assign rd[gj] = data[rd_addr[gj]];
+			assign rv[gj] = valid[rd_addr[gj]];
 		end
 	endgenerate
 
 
 	//***** update head, tail and num
-	assign next_head = head + wnum;
-	assign next_tail = tail + rnum;
+	assign next_head = 
+		( head + wnum < depth ) 
+			? head + wnum
+			: head + wnum - depth;
+	assign next_tail = 
+		( tail + rnum < depth )
+			? tail + rnum
+			: tail + rnum - depth;
 
 	cnt_bits #(
 		.IN			( READ ),
