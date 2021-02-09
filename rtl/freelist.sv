@@ -11,12 +11,12 @@
 
 // Tag distributer that manages free list.
 module freelist #(
-	parameter DEPTH = 16,
-	parameter READ = 4,
-	parameter WRITE = 4,
+	parameter byte DEPTH = 16,
+	parameter byte READ = 4,
+	parameter byte WRITE = 4,
 	// impelementation option
-	parameter BIT_VEC = `Enable,	// bit vector addressing
-	parameter OUTREG = `Disable,	// register output
+	parameter bit BIT_VEC = `Enable,	// bit vector addressing
+	parameter bit OUTREG = `Disable,	// register output
 	// constant
 	parameter DATA = BIT_VEC ? DEPTH : $clog2(DEPTH)
 )(
@@ -84,7 +84,7 @@ module freelist #(
 		reg [DEPTH-1:0][CNT-1:0]	cnt;
 		reg							v_;
 		reg [DEPTH-1:0]				out;
-		integer i, j;
+		int i, j;
 		begin
 			// initialize
 			v_ = `Disable_;
@@ -137,7 +137,7 @@ module freelist #(
 		reg [WRITE-1:0]				wmatch;
 		reg							set;
 		reg							reset;
-		integer i;
+		int i;
 		begin
 			//*** read/write check
 			if ( BIT_VEC ) begin
@@ -152,7 +152,6 @@ module freelist #(
 			end else begin
 				//* Scalar Index Addressing
 				for ( i = 0; i < READ; i = i + 1 ) begin
-					//rmatch[i] = ( idx == rd[`Range(i,DATA)] ) && !re_[i];
 					rmatch[i] = ( idx == rd[i] ) && !re_[i];
 				end
 
