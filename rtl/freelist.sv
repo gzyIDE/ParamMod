@@ -27,8 +27,8 @@ module freelist #(
 	input wire [WRITE-1:0][DATA-1:0]	wd,			// collect tags
 	input wire [READ-1:0]				re_,		// request tag
 	output wire [READ-1:0][DATA-1:0]	rd,			// served tag
-	output wire [READ-1:0]				v,
-	output wire							busy
+	output wire [READ-1:0]				v,			// valid tags
+	output wire							busy		// some entry may be invalid
 );
 
 	//***** internal parameter
@@ -37,16 +37,19 @@ module freelist #(
 
 	//***** internal registers
 	reg [DEPTH-1:0]				usage;
+	reg							busy_reg;
 
 	//***** internal wires
-	wire [READ-1:0]				v_sel_out_;
-	wire [DEPTH-1:0]			next_usage;
 	wire [DEPTH-1:0][DATA-1:0]	index;
+	wire [DEPTH-1:0]			next_usage;
+	wire [READ-1:0]				v_sel_out_;
+	wire [CNT:0]				empty_cnt;
+	wire						next_busy;
 
 
 
 	//***** assign output
-	assign busy = ! (&v);
+	assign busy = busy_reg;
 	assign v = ~v_sel_out_;
 
 	generate
@@ -113,6 +116,7 @@ module freelist #(
 
 
 	//***** internal assign
+	assign next_busy = ( empty_cnt < READ );
 	generate
 		genvar gi;
 		for ( gi = 0; gi < DEPTH; gi = gi + 1 ) begin : LP_entry
@@ -169,17 +173,29 @@ module freelist #(
 		end
 	endfunction
 
+	cnt_bits #(
+		.IN		( DEPTH ),
+		.ACT	( `Low )
+	) count_empty (
+		.in		( next_usage ),
+		.out	( empty_cnt )
+	);
+
 
 
 	//***** sequential logics
 	always_ff @( posedge clk or negedge reset_ ) begin
 		if ( reset_ == `Enable_ ) begin
 			usage <= {DEPTH{`Disable}};
+			busy_reg <= `Disable;
 		end else begin
 			if ( flush_ == `Enable_ ) begin
 				usage <= {DEPTH{`Disable}};
+				busy_reg <= `Disable;
 			end else begin
-				usage <= busy ? usage : next_usage;
+				//usage <= busy ? usage : next_usage;
+				usage <= next_usage;
+				busy_reg <= next_busy;
 			end
 		end
 	end 

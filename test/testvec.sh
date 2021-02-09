@@ -246,6 +246,7 @@ switch ( $TOP_MODULE )
 			set RTL_FILE = ( \
 				${RTLDIR}/${TOP_MODULE}.sv \
 				${RTLDIR}/selector.sv \
+				${RTLDIR}/cnt_bits.sv \
 			)
 		endif
 	breaksw
