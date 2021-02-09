@@ -1,5 +1,5 @@
 /*
-* <bin_dec_test.sv>
+* <freelist_test.sv>
 * 
 * Copyright (c) 2021 Yosuke Ide
 * 
