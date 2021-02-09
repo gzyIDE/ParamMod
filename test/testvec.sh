@@ -81,7 +81,8 @@ endsw
 #set DEFAULT_DESIGN = "fifo"
 #set DEFAULT_DESIGN = "ring_buf"
 #set DEFAULT_DESIGN = "shifter"
-set DEFAULT_DESIGN = "regfile"
+#set DEFAULT_DESIGN = "regfile"
+set DEFAULT_DESIGN = "freelist"
 
 if ( $# =~ 0 ) then
 	set TOP_MODULE = $DEFAULT_DESIGN
@@ -230,6 +231,21 @@ switch ( $TOP_MODULE )
 		else
 			set RTL_FILE = ( \
 				${RTLDIR}/${TOP_MODULE}.sv \
+			)
+		endif
+	breaksw
+
+	case "freelist" :
+		set TEST_FILE = "${TOP_MODULE}_test.sv"
+		if ( $GATE =~ 1 ) then
+			set RTL_FILE = ( \
+				$RTL_FILE \
+				${GATEDIR}/${TOP_MODULE}/${TOP_MODULE}.mapped.v \
+			)
+		else
+			set RTL_FILE = ( \
+				${RTLDIR}/${TOP_MODULE}.sv \
+				${RTLDIR}/selector.sv \
 			)
 		endif
 	breaksw
