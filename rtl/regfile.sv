@@ -22,7 +22,7 @@ module regfile #(
 	input wire [WRITE-1:0][ADDR-1:0]	waddr,
 	input wire [WRITE-1:0]				we_,
 	input wire [WRITE-1:0][DATA-1:0]	wdata,
-	output logic [READ-1:0][DATA-1:0]	out
+	output logic [READ-1:0][DATA-1:0]	rdata
 );
 
 	//***** internal parameters
@@ -40,7 +40,7 @@ module regfile #(
 	always_comb begin
 		int i;
 		for ( i = 0; i < READ; i = i + 1 ) begin
-			out[i] = regs[raddr[i]];
+			rdata[i] = regs[raddr[i]];
 		end
 	end
 
