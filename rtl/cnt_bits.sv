@@ -27,51 +27,56 @@ module cnt_bits #(
 
 
 
-	//***** Internal Wires
-	//*** Most of bits are not used (Removed on synthesis)
-	wire [OUT-1:0]				res [ELMS-1:0];
-
-
-
-	//***** assign output
-	assign out = res[ELMS-1];
-
-
-
-	//***** bit counter
 	generate
 		genvar gi, gj;
-		for ( gi = 0; gi < EIN / 2; gi = gi + 1 ) begin : ST0
-			wire [1:0]		res_each;
-			if ( 2*gi+1 < IN ) begin : valid
-				sub_cnt #(
-					.IN		( 1 )
-				) sub_cnt (
-					.in1	( ( in[gi*2] == ACT ) ),
-					.in2	( ( in[gi*2+1] == ACT ) ),
-					.out	( res_each )
-				);
-			end else if ( 2*gi < IN ) begin : half
-				assign res_each = in[gi*2];
-			end else begin : zero
-				assign res_each = 2'b00;
-			end
+		if ( IN == 1 ) begin : nocnt
+			//***** assign output
+			assign out = ( in == ACT );
+		end else begin : cnt
+			//***** Internal Wires
+			//*** Most of bits are not used (Removed on synthesis)
+			wire [OUT-1:0]				res [ELMS-1:0];
 
-			assign res[gi] = {{OUT-2{1'b0}}, res_each};
-		end
-		for ( gi = 2; gi <= STAGE; gi = gi + 1 ) begin : ST
-			//*** stage 2 to stage STAGE
-			for ( gj = 0; gj < EIN >> gi; gj = gj + 1 ) begin : elm
-				wire [gi:0]		res_each;
-				sub_cnt #(
-					.IN		( gi )
-				) sub_cnt (
-					.in1	( res[(gj*2)+(EIN-(EIN>>(gi-2)))][gi-1:0] ),
-					.in2	( res[(gj*2+1)+(EIN-(EIN>>(gi-2)))][gi-1:0] ),
-					.out	( res_each )
-				);
-				assign res[gj+(EIN-(EIN>>(gi-1)))]
-					= {{OUT-(gi+1){1'b0}}, res_each};
+
+
+			//***** assign output
+			assign out = ( IN == 1 ) ? in : res[ELMS-1];
+
+
+
+			//***** bit counter
+			for ( gi = 0; gi < EIN / 2; gi = gi + 1 ) begin : ST0
+				wire [1:0]		res_each;
+				if ( 2*gi+1 < IN ) begin : valid
+					sub_cnt #(
+						.IN		( 1 )
+					) sub_cnt (
+						.in1	( ( in[gi*2] == ACT ) ),
+						.in2	( ( in[gi*2+1] == ACT ) ),
+						.out	( res_each )
+					);
+				end else if ( 2*gi < IN ) begin : half
+					assign res_each = in[gi*2];
+				end else begin : zero
+					assign res_each = 2'b00;
+				end
+
+				assign res[gi] = {{OUT-2{1'b0}}, res_each};
+			end
+			for ( gi = 2; gi <= STAGE; gi = gi + 1 ) begin : ST
+				//*** stage 2 to stage STAGE
+				for ( gj = 0; gj < EIN >> gi; gj = gj + 1 ) begin : elm
+					wire [gi:0]		res_each;
+					sub_cnt #(
+						.IN		( gi )
+					) sub_cnt (
+						.in1	( res[(gj*2)+(EIN-(EIN>>(gi-2)))][gi-1:0] ),
+						.in2	( res[(gj*2+1)+(EIN-(EIN>>(gi-2)))][gi-1:0] ),
+						.out	( res_each )
+					);
+					assign res[gj+(EIN-(EIN>>(gi-1)))]
+						= {{OUT-(gi+1){1'b0}}, res_each};
+				end
 			end
 		end
 	endgenerate

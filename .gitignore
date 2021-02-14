@@ -2,6 +2,7 @@
 test/xmverilog.*
 test/xcelium.d/
 test/waves.shm/
+test/.simvision
 
 # ignore backup
 /bkp/
