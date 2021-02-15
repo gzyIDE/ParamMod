@@ -56,6 +56,7 @@ module ring_buf #(
 	wire [WNUM-1:0]				wnum;
 	wire [ADDR-1:0]				next_head;
 	wire [ADDR-1:0]				next_tail;
+	wire [$clog2(DEPTH)-1:0]	depth;
 
 
 
@@ -67,7 +68,7 @@ module ring_buf #(
 
 
 	//***** generate address and data
-	bit [$clog2(DEPTH)-1:0]	depth = DEPTH;
+	assign depth = DEPTH;
 	generate
 		genvar gi, gj;
 		for ( gi = 0; gi < WRITE; gi = gi + 1 ) begin : Loop_write

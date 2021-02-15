@@ -14,6 +14,7 @@ module cam #(
 	parameter DEPTH = 64,
 	parameter WRITE = 4,
 	parameter READ = 4,
+	parameter NO_RE = `Disable,		// Don't use re_
 	// constant
 	parameter ADDR = $clog2(DEPTH)
 )(
@@ -46,7 +47,13 @@ module cam #(
 
 	//***** assign internal
 	assign we = ~we_;
-	assign re = ~re_;
+	generate
+		if ( NO_RE ) begin : IF_no_re
+			assign re = {READ{`Enable}};
+		end else begin : IF_re
+			assign re = ~re_;
+		end
+	endgenerate
 
 
 
