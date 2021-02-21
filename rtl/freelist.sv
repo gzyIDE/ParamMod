@@ -62,19 +62,40 @@ module freelist #(
 			end
 		end else begin : sel_scl
 			//*** DATA = $clog2(DEPTH)
+			wire [READ-1:0][DEPTH-1:0]	pos;
+			wire [READ-1:0][DEPTH-1:0]	usage_scl;
+			assign usage_scl[0] = usage;
 			selector #(
 				.BIT_MAP	( `Enable ),
 				.DATA		( DATA ),
 				.IN			( DEPTH ),
-				.OUT		( READ ),
 				.ACT		( `Low ),
 				.MSB		( `Disable )
 			) sel_free (
 				.in			( index ),
 				.sel		( usage ),
-				.valid		( v_sel_out_ ),
-				.out		( rd )
+				.valid		( v_sel_out_[0] ),
+				.pos		( pos[0] ),
+				.out		( rd[0] )
 			);
+
+			for ( gj = 1; gj < READ; gj = gj + 1 ) begin : LP_rd
+				assign usage_scl[gj] = usage_scl[gj-1] | ~pos[gj-1];
+
+				selector #(
+					.BIT_MAP	( `Enable ),
+					.DATA		( DATA ),
+					.IN			( DEPTH ),
+					.ACT		( `Low ),
+					.MSB		( `Disable )
+				) sel_free (
+					.in			( index ),
+					.sel		( usage_scl[gj] ),
+					.valid		( v_sel_out_[gj] ),
+					.pos		( pos[gj] ),
+					.out		( rd[gj] )
+				);
+			end
 		end
 	endgenerate
 

@@ -12,7 +12,7 @@
 module freelist_test;
 	parameter STEP = 10;
 	parameter DEPTH = 16;
-	parameter BIT_VEC = `Enable;
+	parameter BIT_VEC = `Disable;
 	parameter DATA = BIT_VEC ? DEPTH : $clog2(DEPTH);
 	parameter READ = 4;
 	parameter WRITE = 4;

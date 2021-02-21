@@ -1,7 +1,7 @@
 /*
 * <selector.sv>
 * 
-* Copyright (c) 2020 Yosuke Ide
+* Copyright (c) 2020-2021 Yosuke Ide
 * 
 * This software is released under the MIT License.
 * http://opensource.org/licenses/mit-license.php
@@ -14,7 +14,7 @@ module selector #(
 	parameter int DATA = 5,				// width of single element
 	parameter int IN = 64,				// # of input element
 	parameter bit ACT = `Low,			// Active High/Low
-	parameter bit MSB = `Disable,		// select from MSB
+	parameter bit MSB = `Disable,		// select from Most Sifnificant Elements
 	// constant
 	parameter int LOG2_IN = $clog2(IN),
 	parameter int SEL_WIDTH = BIT_MAP ? IN : LOG2_IN // selector width
@@ -34,7 +34,7 @@ module selector #(
 	localparam ELMS = EIN - 1;
 
 	//***** Internal wires
-	wire [DATA-1:0]				res [ELMS-1:0];
+	wire [ELMS-1:0][DATA-1:0]	res;
 	wire [ELMS-1:0]				sel_res;
 
 
@@ -90,20 +90,32 @@ module selector #(
 				wire [LOG2_IN-1:0]	pos1;
 				wire				sel2;
 				wire [LOG2_IN-1:0]	pos2;
-				assign sel_res[gi] = sel1 || sel2;
 				assign pos1 = gi * 2;
 				assign pos2 = gi * 2 + 1;
-				if ( BIT_MAP ) begin : bitmap
-					assign sel1 = ( sel[gi*2] == ENABLE );
-					assign sel2 = ( sel[gi*2+1] == ENABLE );
-				end else begin : idx
-					assign sel1 = ( sel == ( gi * 2 ) );
-					assign sel2 = ( sel == ( gi * 2 + 1 ) );
+				if ( ACT ) begin : IF_acth
+					assign sel_res[gi] = sel1 || sel2;
+					if ( BIT_MAP ) begin : bitmap
+						assign sel1 = ( sel[gi*2] == ENABLE );
+						assign sel2 = ( sel[gi*2+1] == ENABLE );
+					end else begin : idx
+						assign sel1 = ( sel == ( gi * 2 ) );
+						assign sel2 = ( sel == ( gi * 2 + 1 ) );
+					end
+				end else begin : IF_actl
+					assign sel_res[gi] = sel1 && sel2;
+					if ( BIT_MAP ) begin : bitmap
+						assign sel1 = !( sel[gi*2] == ENABLE );
+						assign sel2 = !( sel[gi*2+1] == ENABLE );
+					end else begin : idx
+						assign sel1 = !( sel == ( gi * 2 ) );
+						assign sel2 = !( sel == ( gi * 2 + 1 ) );
+					end
 				end
 
 				sub_sel #(
 					.DATA	( DATA ),
-					.MSB	( MSB )
+					.MSB	( MSB ),
+					.ACT	( ACT )
 				) sub_sel (
 					.in1	( in[gi*2] ),
 					.in2	( in[gi*2+1] ),
@@ -116,10 +128,17 @@ module selector #(
 				wire [LOG2_IN-1:0]	pos;
 				assign pos = gi*2;
 				assign res[gi] = {pos, in[gi*2]};
-				assign sel_res[gi] =
-					BIT_MAP
-						? ( sel[gi*2] == ENABLE )
-						: ( sel == (gi*2) );
+				if ( ACT ) begin : IF_acth
+					assign sel_res[gi] =
+						BIT_MAP
+							? ( sel[gi*2] == ENABLE )
+							: ( sel == (gi*2) );
+				end else begin : IF_actl
+					assign sel_res[gi] =
+						BIT_MAP
+							? !( sel[gi*2] == ENABLE )
+							: !( sel == (gi*2) );
+				end
 			end else begin : zero
 				assign res[gi] = {DATA{1'b0}};
 				assign sel_res[gi] = DISABLE;
@@ -133,11 +152,16 @@ module selector #(
 				wire		sel2; 
 				assign sel1 = sel_res[(gj*2)+(EIN-(EIN>>(gi-2)))];
 				assign sel2 = sel_res[(gj*2+1)+(EIN-(EIN>>(gi-2)))];
-				assign sel_res[gj+(EIN-(EIN>>(gi-1)))] = sel1 || sel2;
+				if ( ACT ) begin : IF_acth
+					assign sel_res[gj+(EIN-(EIN>>(gi-1)))] = sel1 || sel2;
+				end else begin : IF_actl
+					assign sel_res[gj+(EIN-(EIN>>(gi-1)))] = sel1 && sel2;
+				end
 
 				sub_sel #(
 					.DATA	( DATA ),
-					.MSB	( MSB )
+					.MSB	( MSB ),
+					.ACT	( ACT )
 				) sub_cnt (
 					.in1	( res[(gj*2)+(EIN-(EIN>>(gi-2)))] ),
 					.in2	( res[(gj*2+1)+(EIN-(EIN>>(gi-2)))] ),
@@ -153,8 +177,9 @@ endmodule
 
 // simple 2:1 mux
 module sub_sel #(
-	parameter DATA = 8,
-	parameter MSB = `Disable
+	parameter int DATA = 8,
+	parameter bit MSB = `Disable,
+	parameter bit ACT = `High
 )(
 	input wire [DATA-1:0]		in1,
 	input wire [DATA-1:0]		in2,
@@ -165,23 +190,44 @@ module sub_sel #(
 
 
 	generate
-		if ( MSB ) begin : IF_MSB
-			always_comb begin
-				case ( {sel2, sel1} )
-					2'b11, 2'b10 : out = in2;
-					2'b01 : out = in1;
-					default : out = {DATA{1'b0}};
-				endcase
+		case ( {MSB, ACT} )
+			{`Disable, `Low} : begin : CASE_ll
+				always_comb begin
+					case ( {sel2, sel1} )
+						2'b00, 2'b10 : out = in1;
+						2'b01 : out = in2;
+						default : out = {DATA{1'b0}};
+					endcase
+				end
 			end
-		end else begin : IF_LSB
-			always_comb begin
-				case ( {sel2, sel1} )
-					2'b11, 2'b01 : out = in1;
-					2'b10 : out = in2;
-					default : out = {DATA{1'b0}};
-				endcase
+			{`Enable, `Low} : begin : CASE_ml
+				always_comb begin
+					case ( {sel2, sel1} )
+						2'b00, 2'b01 : out = in2;
+						2'b10 : out = in1;
+						default : out = {DATA{1'b0}};
+					endcase
+				end
 			end
-		end
+			{`Disable, `High} : begin : CASE_lh
+				always_comb begin
+					case ( {sel2, sel1} )
+						2'b11, 2'b01 : out = in1;
+						2'b10 : out = in2;
+						default : out = {DATA{1'b0}};
+					endcase
+				end
+			end
+			{`Enable, `High} : begin : CASE_mh
+				always_comb begin
+					case ( {sel2, sel1} )
+						2'b11, 2'b10 : out = in2;
+						2'b01 : out = in1;
+						default : out = {DATA{1'b0}};
+					endcase
+				end
+			end
+		endcase
 	endgenerate
 
 endmodule
