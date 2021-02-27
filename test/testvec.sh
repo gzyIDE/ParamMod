@@ -83,8 +83,9 @@ endsw
 #set DEFAULT_DESIGN = "cam"
 #set DEFAULT_DESIGN = "shifter"
 #set DEFAULT_DESIGN = "regfile"
-set DEFAULT_DESIGN = "freelist"
+#set DEFAULT_DESIGN = "freelist"
 #set DEFAULT_DESIGN = "selector"
+set DEFAULT_DESIGN = "sel_minmax"
 
 if ( $# =~ 0 ) then
 	set TOP_MODULE = $DEFAULT_DESIGN
@@ -249,6 +250,21 @@ switch ( $TOP_MODULE )
 				${RTLDIR}/${TOP_MODULE}.sv \
 				${RTLDIR}/selector.sv \
 				${RTLDIR}/cnt_bits.sv \
+			)
+		endif
+	breaksw
+
+	case "sel_minmax" :
+		set TEST_FILE = "${TOP_MODULE}_test.sv"
+		if ( $GATE =~ 1 ) then
+			set RTL_FILE = ( \
+				$RTL_FILE \
+				${GATEDIR}/${TOP_MODULE}/${TOP_MODULE}.mapped.v \
+			)
+		else
+			set RTL_FILE = ( \
+				${RTLDIR}/${TOP_MODULE}.sv \
+				${RTLDIR}/bin_dec.sv \
 			)
 		endif
 	breaksw
