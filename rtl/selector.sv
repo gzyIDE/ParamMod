@@ -83,7 +83,7 @@ module selector #(
 	generate
 		genvar gi, gj;
 		//*** Input Stage ( = stage 1 )
-		for ( gi = 0; gi < EIN / 2; gi = gi + 1 ) begin : ST0
+		for ( gi = 0; gi < EIN / 2; gi = gi + 1 ) begin : ST1
 
 			if ( 2*gi+1 < IN ) begin : elm
 				wire				sel1;
