@@ -78,11 +78,13 @@ module cam #(
 				assign wmatch[gj] = we[gj] && (waddr[gj] == gi);
 
 				//* data select
-				assign wr_each = {DATA{wmatch[gj]}} & ~wm[gj];
-				assign next_cell_each
-					= ( cell_each & ~wr_each )
-						| ( cell_each & ~wd[gj] )
-						| ( ~cell_each & wr_each & wd[gj] );
+				//assign wr_each = {DATA{wmatch[gj]}} & ~wm[gj];
+				//assign next_cell_each
+				//	= ( cell_each & ~wr_each )
+				//		| ( cell_each & ~wd[gj] )
+				//		| ( ~cell_each & wr_each & wd[gj] );
+				assign next_cell_each =
+					( wmatch[gj] && !wm[gj] ) ? wd[gj] : cell_each;
 			end
 
 
