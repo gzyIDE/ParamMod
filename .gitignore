@@ -5,5 +5,5 @@ test/waves.shm/
 test/.simvision
 
 # ignore backup
-/bkp/
-/gomi/
+*/bkp/
+*/gomi/
