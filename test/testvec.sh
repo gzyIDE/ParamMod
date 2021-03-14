@@ -7,10 +7,12 @@ set TOPDIR = ".."
 set RTLDIR = "${TOPDIR}/rtl"
 set TESTDIR = "${TOPDIR}/test"
 set GATEDIR = "${TOPDIR}/syn/result"
-set INCLUDE = ( \
-	+incdir+${TOPDIR}/include \
-	+incdir+${TESTDIR} \
+set INCDIR = ( \
+	${TOPDIR}/include \
+	${TESTDIR} \
 )
+set INCLUDE = ()
+set DEFINES = ()
 
 #############################################
 # Output Wave
@@ -21,7 +23,11 @@ set WaveOpt
 #############################################
 # Defines
 #############################################
-set DEFINES = ()
+if ( $Waves =~ 1 ) then
+	set DEFINE_LIST = ( WAVE_DUMP )
+else 
+	set DEFINE_LIST = ()
+endif
 
 #############################################
 #           Gate Level Simulation           #
@@ -29,20 +35,20 @@ set DEFINES = ()
 #set GATE = 1
 set GATE = 0
 if ( $GATE =~ 1 ) then
-	set DEFINES = ($DEFINES +define+NETLIST)
+	set DEFINE_LIST = ($DEFINE_LIST NETLIST)
 endif
 
 #############################################
 #              Process Setting              #
 #############################################
-set Process = "ASAP7"
-#set Process = "None"
+#set Process = "ASAP7"
+set Process = "None"
 
 switch ($Process)
 	case "ASAP7" :
 		set CELL_LIB = "./ASAP7_PDKandLIB_v1p6/lib_release_191006"
 		set CELL_RTL_DIR = "${CELL_LIB}/asap7_7p5t_library/rev25/Verilog"
-		set DEFINES = (${DEFINES} +define+ASAP7)
+		set DEFINE_LIST = (${DEFINE_LIST} ASAP7)
 
 		set RTL_FILE = ( \
 			-v $CELL_RTL_DIR/asap7sc7p5t_AO_RVT_TT_08302018.v \
@@ -77,16 +83,7 @@ endsw
 ########################################
 #     Simulation Target Selection      #
 ########################################
-#set DEFAULT_DESIGN = "cnt_bits"
-#set DEFAULT_DESIGN = "fifo"
-#set DEFAULT_DESIGN = "ring_buf"
-#set DEFAULT_DESIGN = "cam"
-#set DEFAULT_DESIGN = "shifter"
-#set DEFAULT_DESIGN = "regfile"
-#set DEFAULT_DESIGN = "freelist"
-#set DEFAULT_DESIGN = "selector"
-#set DEFAULT_DESIGN = "sel_minmax"
-set DEFAULT_DESIGN = "stack"
+source target.sh
 
 if ( $# =~ 0 ) then
 	set TOP_MODULE = $DEFAULT_DESIGN
@@ -285,6 +282,20 @@ switch ( $TOP_MODULE )
 		endif
 	breaksw
 
+	case "reduct" :
+		set TEST_FILE = "${TOP_MODULE}_test.sv"
+		if ( $GATE =~ 1 ) then
+			set RTL_FILE = ( \
+				$RTL_FILE \
+				${GATEDIR}/${TOP_MODULE}/${TOP_MODULE}.mapped.v \
+			)
+		else
+			set RTL_FILE = ( \
+				${RTLDIR}/${TOP_MODULE}.sv \
+			)
+		endif
+	breaksw
+
 	default : 
 		# Error
 		echo "Invalid Module"
@@ -296,22 +307,20 @@ endsw
 ########################################
 #        Simulation Tool Setup         #
 ########################################
-#set SIM_TOOL = "ncverilog"
-set SIM_TOOL = "xmverilog"
-#set SIM_TOOL = "vcs"
-#set SIM_TOOL = "iverilog"
+source sim_tool.sh
 
 switch( $SIM_TOOL )
 	case "ncverilog" :
 		if ( $Waves =~ 1 ) then
-			set WaveOpt = +define+SimVision
-		else
+			set WaveOpt = +define+CADENCE
 		endif
 
 		set SIM_OPT = ( \
 			+nc64bit \
 			$WaveOpt \
 			+access+r \
+			+notimingchecks \
+			-ALLOWREDEFINITION \
 		)
 		set SRC_EXT = ( \
 			+xmc_ext+.c \
@@ -319,16 +328,32 @@ switch( $SIM_TOOL )
 			+systemverilog_ext+.sv \
 			+vlog_ext+.v \
 		)
+
+		foreach def ( $DEFINE_LIST )
+			set DEFINES = ( \
+				+define+$def \
+				$DEFINES \
+			) 
+		end
+		foreach dir ( $INCDIR )
+			set INCLUDE = ( \
+				+incdir+$dir \
+				$INCLUDE \
+			)
+		end
 	breaksw
+
 	case "xmverilog" :
 		if ( $Waves =~ 1 ) then
-			set WaveOpt = +define+SimVision
+			set WaveOpt = +define+CADENCE
 		endif
 
 		set SIM_OPT = ( \
 			+64bit \
 			$WaveOpt \
 			+access+r \
+			+notimingchecks \
+			-ALLOWREDEFINITION \
 		)
 		set SRC_EXT = ( \
 			+xmc_ext+.c \
@@ -336,10 +361,24 @@ switch( $SIM_TOOL )
 			+systemverilog_ext+.sv \
 			+vlog_ext+.v \
 		)
+
+		foreach def ( $DEFINE_LIST )
+			set DEFINES = ( \
+				+define+$def \
+				$DEFINES \
+			) 
+		end
+		foreach dir ( $INCDIR )
+			set INCLUDE = ( \
+				+incdir+$dir \
+				$INCLUDE \
+			)
+		end
 	breaksw
+
 	case "vcs" :
 		if ( $Waves =~ 1 ) then
-			set WaveOpt = +define+VCS
+			set WaveOpt = +define+SYNOPSYS
 		endif
 
 		set SIM_OPT = ( \
@@ -348,6 +387,8 @@ switch( $SIM_TOOL )
 			$WaveOpt \
 			+incdir+.include \
 			-debug_access+r \
+			+notimingchecks \
+			-ALLOWREDEFINITION \
 		)
 		set SRC_EXT = ( \
 			+xmc_ext+.c \
@@ -355,10 +396,76 @@ switch( $SIM_TOOL )
 			+systemverilogext+.sv \
 			+verilog2001ext+.v \
 		)
+
+		foreach def ( $DEFINE_LIST )
+			set DEFINES = ( \
+				+define+$def \
+				$DEFINES \
+			) 
+		end
+		foreach dir ( $INCDIR )
+			set INCLUDE = ( \
+				+incdir+$dir \
+				$INCLUDE \
+			)
+		end
 	breaksw
-	case "iverilog" :
-		set SIM_OPT = ()
-		set SRC_EXT = ()
+
+	case "verilator" :
+		if ( $Waves =~ 1 ) then
+			set WaveOpt = +define+VCD
+		endif
+
+		set SIM_OPT = ( \
+			-lint-only \
+			$WaveOpt \
+			+notimingchecks \
+		)
+
+		set SRC_EXT = ( \
+			+libext+.v.sv \
+			+systemverilogext+.sv \
+		)
+
+		set DEFINE_LIST = ( \
+		)
+
+		foreach def ( $DEFINE_LIST )
+			set DEFINES = ( \
+				+define+$def \
+				$DEFINES \
+			) 
+		end
+		foreach dir ( $INCDIR )
+			set INCLUDE = ( \
+				+incdir+$dir \
+				$INCLUDE \
+			)
+		end
+	breaksw
+
+	case "xilinx_sim" :
+		if ( $Waves =~ 1 ) then
+			set WaveOpt = (-d VCD)
+		endif
+
+		set SIM_OPT = ( \
+			$WaveOpt \
+		)
+
+		foreach def ( $DEFINE_LIST )
+			set DEFINES = ( \
+				--define $def \
+				$DEFINES \
+			)
+		end
+
+		foreach dir ( $INCDIR )
+			set INCLUDE = ( \
+				--include $dir \
+				$INCLUDE \
+			)
+		end
 	breaksw
 
 	default :
@@ -368,15 +475,27 @@ switch( $SIM_TOOL )
 endsw
 
 
+
 ##############################
 #       run simulation       #
 ##############################
-${SIM_TOOL} \
-	${SIM_OPT} \
-	${SRC_EXT} \
-	+notimingchecks \
-	-ALLOWREDEFINITION \
-	${INCLUDE} \
-	${DEFINES} \
-	${TEST_FILE} \
-	${RTL_FILE}
+if ( ${SIM_TOOL} =~ "xilinx_sim" ) then
+	xvlog \
+		--sv \
+		${SIM_OPT} \
+		${INCLUDE} \
+		${DEFINES} \
+		${TEST_FILE} \
+		${RTL_FILE}
+
+	xelab ${TOP_MODULE}_test
+	xsim --R ${TOP_MODULE}_test
+else
+	${SIM_TOOL} \
+		${SIM_OPT} \
+		${SRC_EXT} \
+		${INCLUDE} \
+		${DEFINES} \
+		${TEST_FILE} \
+		${RTL_FILE}
+endif

@@ -1,5 +1,5 @@
 /*
-* <bin_dec.v>
+* <bin_dec.sv>
 * 
 * Copyright (c) 2020 Yosuke Ide
 * 

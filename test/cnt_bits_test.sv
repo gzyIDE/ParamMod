@@ -16,7 +16,7 @@
 
 module cnt_bits_test;
 	parameter STEP = 10;
-	parameter IN = 16;
+	parameter IN = 5;
 	parameter OUT = $clog2(IN) + 1;
 	parameter ACT = `High;
 

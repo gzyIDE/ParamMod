@@ -21,17 +21,24 @@
 */
 
 /* character setting */
-`define SetCharBold			$write("%c[1m",27);
-`define SetCharBar			$write("%c[4m",27);
-`define SetCharBlack		$write("%c[30m",27);
-`define SetCharRed			$write("%c[31m",27);
-`define SetCharGreen		$write("%c[32m",27);
-`define SetCharYellow		$write("%c[33m",27);
-`define SetCharBlue			$write("%c[34m",27);
-`define SetCharMagenta		$write("%c[35m",27);
-`define SetCharCyan			$write("%c[36m",27);
-`define SetCharWhite		$write("%c[37m",27);
-`define ResetCharSetting	$write("%c[0m",27);
+`define SetCharBold				$write("%c[1m",27);
+`define SetCharBar				$write("%c[4m",27);
+`define SetCharBlack			$write("%c[30m",27);
+`define SetCharBlackBold		$write("%c[30m",27);$write("%c[1m",27);
+`define SetCharRed				$write("%c[31m",27);
+`define SetCharRedBold			$write("%c[31m",27);$write("%c[1m",27);
+`define SetCharGreen			$write("%c[32m",27);
+`define SetCharGreenBold		$write("%c[32m",27);$write("%c[1m",27);
+`define SetCharYellow			$write("%c[33m",27);
+`define SetCharYellowBold		$write("%c[33m",27);$write("%c[1m",27);
+`define SetCharBlue				$write("%c[34m",27);
+`define SetCharBlueBold			$write("%c[34m",27);$write("%c[1m",27);
+`define SetCharMagenta			$write("%c[35m",27);
+`define SetCharMagentaBold		$write("%c[35m",27);$write("%c[1m",27);
+`define SetCharCyan				$write("%c[36m",27);
+`define SetCharCyanBold			$write("%c[36m",27);$write("%c[1m",27);
+`define SetCharWhite			$write("%c[37m",27);
+`define ResetCharSetting		$write("%c[0m",27);
 
 /* reset setting */
 `define ATT_RESET			0
