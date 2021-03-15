@@ -1,5 +1,5 @@
 # ParamMod
-Parameterized Verilog Modules for many applications
+Parameterized System Verilog Modules for LSI design
 
 ## Directory Structure
 - rtl: Synthesizable Verilog (SystemVerilog) Modules
