@@ -10,4 +10,6 @@
 #set DEFAULT_DESIGN = "selector"
 #set DEFAULT_DESIGN = "sel_minmax"
 #set DEFAULT_DESIGN = "stack"
-set DEFAULT_DESIGN = "reduct"
+#set DEFAULT_DESIGN = "reduct"
+set DEFAULT_DESIGN = "gather"
+#set DEFAULT_DESIGN = "scatter"
