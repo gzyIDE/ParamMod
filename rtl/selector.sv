@@ -17,12 +17,13 @@ module selector #(
 	parameter bit MSB = `Disable,		// select from Most Sifnificant Elements
 	// constant
 	parameter int LOG2_IN = $clog2(IN),
+	parameter int POS = BIT_MAP ? IN : 1 << IN,
 	parameter int SEL_WIDTH = BIT_MAP ? IN : LOG2_IN // selector width
 ) (
 	input wire [IN-1:0][DATA-1:0]	in,
 	input wire [SEL_WIDTH-1:0]		sel,
 	output wire						valid,
-	output wire [IN-1:0]			pos,
+	output wire [POS-1:0]			pos,
 	output wire [DATA-1:0]			out
 );
 
@@ -40,8 +41,17 @@ module selector #(
 
 
 	//****** output
-	assign out = res[ELMS-1];
-	assign valid = sel_res[ELMS-1];
+	if ( IN == 1 ) begin : IF_thr
+		if ( BIT_MAP ) begin : bitmap
+			assign out = ( sel[0] == ENABLE ) ? in[0] : {DATA{1'b0}};
+		end else begin : idx
+			assign out = ENABLE;
+		end
+		assign valid = sel[0];
+	end else begin : IF_sel
+		assign out = res[ELMS-1];
+		assign valid = sel_res[ELMS-1];
+	end
 
 
 
@@ -67,12 +77,8 @@ module selector #(
 				end
 			end
 		end else begin : IF_IDX
-			logic [IN-1:0]		out_l;
-			assign out = out_l;
-
-			always_comb begin
-				out_l = {IN{DISABLE}};
-				out_l[sel] = ENABLE;
+			for ( gk = 0; gk < POS; gk = gk + 1 ) begin
+				assign pos[gk] = ( gk == sel ) ? ENABLE: DISABLE;
 			end
 		end
 	endgenerate
