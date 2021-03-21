@@ -1,6 +1,6 @@
 `include "stddef.vh"
 
-`define BITMAP
+//`define BITMAP
 
 `ifdef GATE_SIM
  `timescale 1ns/10ps
@@ -106,10 +106,6 @@ module selector_test;
 		$finish;
 	end
 
-`ifdef SimVision
-	initial begin
-		$shm_open();
-		$shm_probe("AC");
-	end
-`endif
+	`include "waves.vh"
+
 endmodule
