@@ -56,7 +56,7 @@ module cnt_bits #(
 						.out	( res_each )
 					);
 				end else if ( 2*gi < IN ) begin : half
-					assign res_each = in[gi*2];
+					assign res_each = {1'b0, (in[gi*2] == ACT)};
 				end else begin : zero
 					assign res_each = 2'b00;
 				end
