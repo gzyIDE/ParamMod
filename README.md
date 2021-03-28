@@ -1,9 +1,9 @@
 # ParamMod
 Parameterized and synthesizable modules written in SystemVerilog 
-for FPGA/ASIC digital circuit designs.
-TODO: I will provide details of modules later,
-	including supporting simulation/synthesis environments and
-	performance in some example configurations.
+for FPGA/ASIC digital circuit designs.  
+TODO: I will provide details of modules later, including supporting 
+simulation/synthesis environments and performance in some example 
+configurations.
 
 # Directory Structure
 - rtl: Synthesizable Verilog (SystemVerilog) Modules
