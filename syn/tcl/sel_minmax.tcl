@@ -8,6 +8,7 @@ set DESIGN		sel_minmax
 #]
 set SV_FILE_LIST [concat \
 	${DESIGN}.sv \
+	bin_dec.sv \
 ]
 
 set DESIGN_NO_CLK	1
