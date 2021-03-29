@@ -1,5 +1,5 @@
 # parameter settings
-set CLK_CYC			0.5
+set CLK_CYC			1
 set IN_DELAY_RATIO	0.10
 set OUT_DELAY_RATIO	0.30
 
