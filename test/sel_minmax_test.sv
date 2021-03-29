@@ -1,13 +1,14 @@
 /*
-* <sel_minmax.sv>
+* <sel_minmax_test.sv>
 * 
-* Copyright (c) 2020 Yosuke Ide
+* Copyright (c) 2020-2021 Yosuke Ide <yosuke.ide@keio.jp>
 * 
 * This software is released under the MIT License.
 * http://opensource.org/licenses/mit-license.php
 */
 
 `include "stddef.vh"
+`include "sim.vh"
 
 module sel_max_test;
 	parameter STEP = 10;
@@ -16,8 +17,10 @@ module sel_max_test;
 	parameter DATA = 8;
 	parameter ACT = `High;
 	parameter OUT = $clog2(IN);
+	parameter ENABLE = ACT ? `Enable : `Enable_;
+	parameter DISABLE = ACT ? `Disable : `Disable_;
 
-	reg [DATA*IN-1:0]		in;
+	reg [IN-1:0][DATA-1:0]	in;
 	wire [OUT-1:0]			out_idx;
 	wire [IN-1:0]			out_vec;
 	wire [DATA-1:0]			out;
@@ -31,23 +34,74 @@ module sel_max_test;
 		.*
 	);
 
-	integer i;
+	task check_result; 
+		int ti;
+		reg [OUT-1:0]		ans_idx;
+		reg [IN-1:0]		ans_vec;
+		reg [DATA-1:0]		ans;
+
+		ans_idx = 0;
+		ans_vec = {{IN-1{DISABLE}}, ENABLE};
+		ans = in[0];
+		for ( ti = 1; ti < IN; ti = ti + 1 ) begin
+			if ( MINMAX_ == `High ) begin
+				// min
+				if ( ans > in[ti] ) begin
+					ans_vec[ans_idx] = DISABLE;
+					ans_vec[ti] = ENABLE;
+					ans_idx = ti;
+					ans = in[ti];
+				end
+			end else begin
+				// max
+				if ( ans < in[ti] ) begin
+					ans_vec[ans_idx] = DISABLE;
+					ans_vec[ti] = ENABLE;
+					ans_idx = ti;
+					ans = in[ti];
+				end
+			end
+		end
+
+		assert(ans_idx == out_idx) else begin
+			`SetCharRedBold
+			$display("Index Check Failed");
+			`ResetCharSetting
+			$display("    expected: 0x%x", ans_idx);
+			$display("    result: 0x%x", out_idx);
+		end
+		assert(ans_vec == out_vec) else begin
+			`SetCharRedBold
+			$display("Vector Check Failed");
+			`ResetCharSetting
+			$display("    expected: 0x%x", ans_vec);
+			$display("    result: 0x%x", out_vec);
+		end
+		assert(ans == out) else begin
+			`SetCharRedBold
+			$display("Result Check Failed");
+			`ResetCharSetting
+			$display("    expected: 0x%x", ans);
+			$display("    result: 0x%x", out);
+		end
+	endtask
+
+	int i, j;
 	initial begin
 		in = {DATA*IN{1'b0}};
 
 		#(STEP);
-		for ( i = 0; i < IN; i = i + 1 ) begin
-			in[`Range(i,DATA)] = $random();
+		for ( i = 0; i < 1000; i = i + 1 ) begin
+			for ( j = 0; j < IN; j = j + 1 ) begin
+				in[j] = $random();
+			end
+			#(STEP);
+			check_result;
 		end
 
 		#(STEP);
 	end
 
-`ifdef SimVision
-	initial begin
-		$shm_open();
-		$shm_probe("AC");
-	end
-`endif
+	`include "waves.vh"
 
 endmodule
