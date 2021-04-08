@@ -92,18 +92,14 @@ module sel_minmax #(
 		//*** middle to output stages
 		for ( gi = 2; gi <= STAGE; gi = gi + 1 ) begin : ST
 			for ( gj = 0; gj < EIN >> gi; gj = gj + 1 ) begin : elm
-				wire [OUT-1:0]	pos1;
-				wire [OUT-1:0]	pos2;
 				wire [OUT-1:0]	idx1;
 				wire [OUT-1:0]	idx2;
 				wire [DATA-1:0]	data1;
 				wire [DATA-1:0]	data2;
-				assign pos1 = (gj*2) + (EIN-(EIN>>(gi-2)));
-				assign pos2 = (gj*2+1) + (EIN-(EIN>>(gi-2)));
-				assign idx1 = idx_res[pos1];
-				assign idx2 = idx_res[pos2];
-				assign data1 = res[pos1];
-				assign data2 = res[pos2];
+				assign idx1 = idx_res[(gj*2) + (EIN-(EIN>>(gi-2)))];
+				assign idx2 = idx_res[(gj*2+1) + (EIN-(EIN>>(gi-2)))];
+				assign data1 = res[(gj*2) + (EIN-(EIN>>(gi-2)))];
+				assign data2 = res[(gj*2+1) + (EIN-(EIN>>(gi-2)))];
 				if ( MINMAX_ ) begin : min
 					assign {idx_res[gj+(EIN-(EIN>>(gi-1)))], 
 								res[gj+(EIN-(EIN>>(gi-1)))] } = 
