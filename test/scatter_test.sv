@@ -14,11 +14,14 @@ module scatter_test;
 	parameter DATA = 32;		// Data Size
 	parameter IN = 8;			// Input Data
 	parameter ACT = `High;		// Active High/Low (sel; valid)
-	parameter OUT = 8;			// Gathered Output
+	parameter OUT = 16;			// Gathered Output
+	parameter OFFSET = `Enable;	// Use offset of input elements
+	parameter OFS = $clog2(IN);
 	localparam ENABLE = ACT ? `Enable : `Enable_;
 	localparam DISABLE = ACT ? `Disable : `Disable_;
 
 	reg [IN-1:0][DATA-1:0]		in;
+	reg [OFS-1:0]				offset;
 	reg [OUT-1:0]				sel;
 	wire [OUT-1:0]				valid;
 	wire [OUT-1:0][DATA-1:0]	out;
@@ -48,15 +51,24 @@ module scatter_test;
 		ans = 0;
 		cnt = 0;
 		ans_valid = {OUT{DISABLE}};
-		for ( fi = 0; fi < IN; fi = fi + 1 ) begin
-			if ( sel[fi] == ENABLE ) begin
+		if ( OFFSET ) begin
+			for ( fi = 0; fi < IN; fi = fi + 1 ) begin
+				if ( fi + offset < IN ) begin
+					in[fi] = in[fi+offset];
+				end else begin
+					in[fi] = 0;
+				end
+			end
+		end
+		for ( fi = 0; fi < OUT; fi = fi + 1 ) begin
+			if ( ( sel[fi] == ENABLE ) && ( cnt < IN ) ) begin
 				ans[fi] = in[cnt];
-				ans_valid[fi] = ENABLE;
+				ans_valid[fi] = ( cnt + offset < IN ) ? ENABLE : DISABLE;
 				cnt = cnt + 1;
 			end
 		end
 
-		assert ( ( ans == out ) && ( valid== ans_valid ) ) else begin
+		assert ( ( ans == out ) && ( valid == ans_valid ) ) else begin
 			$error("Check Failed");
 			$display("    output   : 0x%x", out);
 			$display("    expected : 0x%x", ans);
@@ -69,11 +81,12 @@ module scatter_test;
 
 
 	//***** test body
-	int i, j;
+	int i, j, ofs;
 	initial begin
 		for ( i = 0; i < IN; i = i + 1 ) begin
 			in[i] = i + 1;
 		end
+		offset = 0;
 		sel = {IN{DISABLE}};
 		#(STEP);
 
@@ -85,14 +98,18 @@ module scatter_test;
 		calculate_ans(in, sel, valid,out);
 		#(STEP);
 
-		for ( i = 0; i < 1000; i = i + 1 ) begin
-			sel = $random();
-			for ( j = 0; j < IN; j = j + 1 ) begin
-				in[j] = $random();
+		for ( ofs = 0; ofs < IN; ofs = ofs + 1 ) begin
+			offset = ofs;
+			for ( i = 0; i < 1000; i = i + 1 ) begin
+				sel = $random();
+				for ( j = 0; j < IN; j = j + 1 ) begin
+					in[j] = $random();
+				end
+				#(STEP);
+				calculate_ans(in, sel, valid, out);
+				#(STEP);
 			end
-			#(STEP);
-			calculate_ans(in, sel, valid, out);
-			#(STEP);
+			#(STEP*50);
 		end
 
 		#(STEP);
