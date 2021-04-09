@@ -16,9 +16,9 @@
 
 module pri_enc_test;
 	parameter STEP = 10;
-	parameter IN = 16;
+	parameter IN = 8;
 	parameter OUT = $clog2(IN);
-	parameter ACT = `High;
+	parameter ACT = `Low;
 
 	reg [IN-1:0]		in;
 	reg					valid_ans;
@@ -47,7 +47,7 @@ module pri_enc_test;
 		longint			i;
 		begin
 			out = {OUT{1'b0}};
-			valid = `Disable;
+			valid = !ACT;
 			for ( i = 0; i < IN; i = i + 1 ) begin
 				if ( in[i] == ACT ) begin
 					valid = ACT;
@@ -68,16 +68,15 @@ module pri_enc_test;
 				in = ( 1 << i );
 				{valid_ans, out_ans} = gen_answer(in);
 				#(STEP);
-				if ( (out_ans != out) || (valid_ans != valid) ) begin
+				assert ( (out_ans == out) && (valid_ans == valid) ) begin
 					`SetCharBold
-					`SetCharRed
-					$display("Check Failed: expected %x, acquired %x", 
-						out_ans, out);
+					`SetCharCyan
+					$display("Check Success: acquired %x", out);
 					`ResetCharSetting
 				end else begin
 					`SetCharBold
-					`SetCharCyan
-					$display("Check Success: expected %x, acquired %x", 
+					`SetCharRed
+					$display("Check Failed: expected %x, acquired %x", 
 						out_ans, out);
 					`ResetCharSetting
 				end
@@ -90,7 +89,12 @@ module pri_enc_test;
 				in = {IN{1'b1}} ^ ( 1 << i );
 				{valid_ans, out_ans} = gen_answer(in);
 				#(STEP);
-				if ( (out_ans != out) || (valid_ans != valid) ) begin
+				assert ( (out_ans == out) && (valid_ans == valid) ) begin
+					`SetCharBold
+					`SetCharCyan
+					$display("Check Success: acquired %x", out);
+					`ResetCharSetting
+				end else begin
 					`SetCharBold
 					`SetCharRed
 					$display("Check Failed: expected %x, acquired %x", 
@@ -121,15 +125,6 @@ module pri_enc_test;
 		$finish;
 	end
 
-	initial begin
-`ifdef SimVision
-		$shm_open();
-		$shm_probe("AC");
-`elsif VCS
-		// wave for synopsys
-		$fsdbDumpfile("waves.fsdb");
-		$fsdbDumpvars(0, pri_enc_test);
-`endif
-	end
+	`include "waves.vh"
 
 endmodule

@@ -31,7 +31,7 @@ module pri_enc #(
 	assign valid 
 		= ACT
 			? |in ? ENABLE : DISABLE
-			: &in ? ENABLE : DISABLE;
+			: !( &in ) ? ENABLE : DISABLE;
 
 
 	//***** Generate Mask (Output Constant)
@@ -61,18 +61,24 @@ module pri_enc #(
 	generate
 		genvar gi, gj;
 		for (gi = 0; gi < OUT; gi = gi + 1 ) begin : LP_out
-			wor			out_wor;
-			assign out[gi] = out_wor;
+			//wor			out_wor;	// wor in generate loop may cause
+										//   error in some compilers (such as ixcom) due to 
+										//   multiple drivers for a wired-or net
+			//assign out[gi] = out_wor;
+			wire [IN-1:1]	out_wor;
+			assign out[gi] = |out_wor;
 
 			for ( gj = 1; gj < IN; gj = gj + 1 ) begin : LP_in
 				if ( (gj >> gi) & 1'b1 ) begin : IF_Act
 					bit [IN-1:0]			mask;
 					assign mask = gen_mask((1<<(gi)), gj);
-					assign out_wor = 
+					//assign out_wor = 
+					assign out_wor[gj] =
 						ACT 
 							? !( |( mask & in ) ) && in[gj]
 							: ( &( mask | in ) ) && !in[gj];
-							// !( !( &(mask | in ) ) || in[gj] )
+				end else begin
+					assign out_wor[gj] = `Low;
 				end
 			end
 		end
