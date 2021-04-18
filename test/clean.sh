@@ -1,21 +1,64 @@
-#!/bin/sh
-echo "Remove tool waves and logs? (y/n)"
-read str
-if [ $str == "y" ]; then
-	rm -rf waves.shm
+#!/bin/tcsh
+
+source sim_tool.sh
+
+if ( $SIM_TOOL =~ "xmverilog" ) then
+	# cadence 
+	echo "Removing file xmverilog.log"
+	rm -f xmverilog.log
+
+	echo "Removing file xmverilog.key"
+	rm -f xmverilog.key
+
+	echo "Removing file xmverilog.history"
+	rm -f xmverilog.history
+
+	echo "Removing directory xcelium.d"
 	rm -rf xcelium.d
+
+	echo "Removing directory waves.shm"
+	rm -rf waves.shm
+
+	echo "Removing directory .simvision"
 	rm -rf .simvision
+
+	echo "Removing directory .bpad"
 	rm -rf .bpad
-	rm -rf csrc
-	rm -rf *.sim.daidir
-	rm -rf verdiLog
-	rm -f xmverilog.*
-	rm -f simvision*.diag
-	rm -f bpad*.err
+
+	foreach diag ( simvision*.diag )
+		echo "Removing file $diag"
+		rm -f $diag
+	end
+else if ( $SIM_TOOL =~ "vcs" ) then
+	# synopsys
+	echo "Removing file ucli.key"
 	rm -f ucli.key
-	rm -f sim_exe
-	rm -f wave.fsdb
-	rm -f novas*
-	rm -f *.sim
-	rm -f *.fsdb
-fi
+	rm -f waves.fsdb
+	rm -f novas_dump.log
+
+	foreach simbin ( *.sim )
+		echo "Removing file $simbin"
+		rm -f $simbin
+	end
+
+	echo "Removing directory csrc"
+	rm -rf ./csrc
+
+	foreach simdir ( *.sim.daidir )
+		echo "Removing directory $simdir"
+		rm -rf $simdir
+	end
+else if ( $SIM_TOOL =~ "verilator" ) then
+else if ( $SIM_TOOL =~ "xilinx_sim" ) then
+	rm -f webtalk*.jou >& /dev/null
+	rm -f webtalk*.log >& /dev/null
+	rm -f xsim*.jou >& /dev/null
+	rm -f xsim*.log >& /dev/null
+	rm -f xelab.log
+	rm -f xelab.pb
+	rm -f xvlog.log
+	rm -f xvlog.pb
+	rm -f waves.vcd
+	rm -rf .Xil
+	rm -rf xsim.dir
+endif
