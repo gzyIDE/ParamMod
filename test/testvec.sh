@@ -7,18 +7,28 @@ set TOPDIR = ".."
 set RTLDIR = "${TOPDIR}/rtl"
 set TESTDIR = "${TOPDIR}/test"
 set GATEDIR = "${TOPDIR}/syn/result"
+set SV2VDIR = "${TOPDIR}/sv2v"
+set SV2VRTLDIR = "${SV2VDIR}/rtl"
+set SV2VTESTDIR = "${SV2VDIR}/test"
 set INCDIR = ( \
 	${TOPDIR}/include \
 	${TESTDIR} \
 )
 set INCLUDE = ()
 set DEFINES = ()
+set RTL_FILE = ()
 
 #############################################
 # Output Wave
 #############################################
 set Waves = 1
 set WaveOpt
+
+#############################################
+# Simulation after Systemverilog to verilog 
+#    (SV2V) Conversion
+#############################################
+set SV2V = 0
 
 #############################################
 # Defines
@@ -50,7 +60,7 @@ switch ($Process)
 		set CELL_RTL_DIR = "${CELL_LIB}/asap7_7p5t_library/rev25/Verilog"
 		set DEFINE_LIST = (${DEFINE_LIST} ASAP7)
 
-		set RTL_FILE = ( \
+		set LIB_FILE = ( \
 			-v $CELL_RTL_DIR/asap7sc7p5t_AO_RVT_TT_08302018.v \
 			-v $CELL_RTL_DIR/asap7sc7p5t_AO_LVT_TT_08302018.v \
 			-v $CELL_RTL_DIR/asap7sc7p5t_AO_SLVT_TT_08302018.v \
@@ -76,7 +86,7 @@ switch ($Process)
 	default :
 		# Simulation with simple gate model (Process = "None")
 		# Nothing to set
-		set RTL_FILE = ()
+		set LIB_FILE = ()
 	breaksw
 endsw
 
@@ -92,6 +102,7 @@ else
 endif
 
 source module.sh
+
 
 
 ########################################
@@ -236,7 +247,9 @@ switch( $SIM_TOOL )
 
 	case "xilinx_sim" :
 		if ( $Waves =~ 1 ) then
-			set WaveOpt = (-d VCD)
+			set WaveOpt = ( \
+				--define VCD \
+			)
 		endif
 
 		set SIM_OPT = ( \
@@ -276,6 +289,7 @@ if ( ${SIM_TOOL} =~ "xilinx_sim" ) then
 		${INCLUDE} \
 		${DEFINES} \
 		${TEST_FILE} \
+		${LIB_FILE} \
 		${RTL_FILE}
 
 	xelab ${TOP_MODULE}_test
@@ -287,5 +301,6 @@ else
 		${INCLUDE} \
 		${DEFINES} \
 		${TEST_FILE} \
+		${LIB_FILE} \
 		${RTL_FILE}
 endif
