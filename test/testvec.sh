@@ -1,8 +1,6 @@
 #!/bin/tcsh
 
-#######################################
 ##### File and Directory Settings #####
-#######################################
 set TOPDIR = ".."
 set RTLDIR = "${TOPDIR}/rtl"
 set TESTDIR = "${TOPDIR}/test"
@@ -18,32 +16,39 @@ set INCLUDE = ()
 set DEFINES = ()
 set RTL_FILE = ()
 
-#############################################
-# Output Wave
-#############################################
+
+
+##### load configs
+source sim_tool.sh
+source target.sh
+
+
+
+##### Output Wave
 set Waves = 1
 set WaveOpt
 
-#############################################
-# Simulation after Systemverilog to verilog 
-#    (SV2V) Conversion
-#############################################
-set SV2V = 0
 
-#############################################
-# Defines
-#############################################
+
+##### Simulation after Systemverilog to verilog (SV2V) Conversion
+set SV2V = 0
+if ( $SIM_TOOL =~ "iverilog" ) then
+	# iverilog only supports verilog formats
+	set SV2V = 1
+endif
+
+
+
+##### Defines
 if ( $Waves =~ 1 ) then
 	set DEFINE_LIST = ( WAVE_DUMP )
 else 
 	set DEFINE_LIST = ()
 endif
 
-#############################################
-#           Gate Level Simulation           #
-#############################################
-#set GATE = 1
+##### Gate Level Simulation
 set GATE = 0
+#set GATE = 1
 if ( $GATE =~ 1 ) then
 	set DEFINE_LIST = ($DEFINE_LIST NETLIST)
 endif
@@ -93,8 +98,6 @@ endsw
 ########################################
 #     Simulation Target Selection      #
 ########################################
-source target.sh
-
 if ( $# =~ 0 ) then
 	set TOP_MODULE = $DEFAULT_DESIGN
 else
@@ -108,8 +111,6 @@ source module.sh
 ########################################
 #        Simulation Tool Setup         #
 ########################################
-source sim_tool.sh
-
 switch( $SIM_TOOL )
 	case "ncverilog" :
 		if ( $Waves =~ 1 ) then
@@ -240,6 +241,33 @@ switch( $SIM_TOOL )
 		foreach dir ( $INCDIR )
 			set INCLUDE = ( \
 				+incdir+$dir \
+				$INCLUDE \
+			)
+		end
+	breaksw
+
+	case "iverilog" :
+		if ( $Waves =~ 1 ) then
+			set WaveOpt = (-D VCD)
+		endif
+
+		set SIM_OPT = ( \
+			$WaveOpt \
+			-o ${TOP_MODULE}.sim \
+		)
+
+		set SRC_EXT = ()
+
+		foreach def ( $DEFINE_LIST )
+			set DEFINES = ( \
+				-D $def \
+				$DEFINES \
+			)
+		end
+
+		foreach dir ( $INCDIR )
+			set INCLUDE = ( \
+				-I $dir \
 				$INCLUDE \
 			)
 		end
