@@ -10,7 +10,7 @@
 `include "stddef.vh"
 `include "sim.vh"
 
-module sel_max_test;
+module sel_minmax_test;
 	parameter STEP = 10;
 	parameter MINMAX_ = `High;
 	parameter IN = 8;
