@@ -274,11 +274,12 @@ switch( $SIM_TOOL )
 	breaksw
 
 	case "xilinx_sim" :
-		if ( $Waves =~ 1 ) then
-			set WaveOpt = ( \
-				--define VCD \
-			)
-		endif
+		#if ( $Waves =~ 1 ) then
+		#	set WaveOpt = ( \
+		#		--define VCD \
+		#	)
+		#endif
+		# Output WDB instead
 
 		set SIM_OPT = ( \
 			$WaveOpt \
@@ -320,8 +321,13 @@ if ( ${SIM_TOOL} =~ "xilinx_sim" ) then
 		${LIB_FILE} \
 		${RTL_FILE}
 
-	xelab ${TOP_MODULE}_test
-	xsim --R ${TOP_MODULE}_test
+	if ( $Waves ) then
+		xelab --debug all ${TOP_MODULE}_test
+		xsim --tclbatch xwaves.tcl --wdb waves.wdb ${TOP_MODULE}_test
+	else
+		xelab ${TOP_MODULE}_test
+		xsim --R ${TOP_MODULE}_test
+	endif
 else
 	${SIM_TOOL} \
 		${SIM_OPT} \

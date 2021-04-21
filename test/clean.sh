@@ -54,8 +54,10 @@ else if ( $SIM_TOOL =~ "iverilog" ) then
 		echo "Removing file $simbin"
 		rm -f $simbin
 	end
-rm -f waves.vcd
+
+	rm -f waves.vcd
 else if ( $SIM_TOOL =~ "xilinx_sim" ) then
+	echo "Removing simulation logs and results"
 	rm -f webtalk*.jou >& /dev/null
 	rm -f webtalk*.log >& /dev/null
 	rm -f xsim*.jou >& /dev/null
@@ -67,4 +69,11 @@ else if ( $SIM_TOOL =~ "xilinx_sim" ) then
 	rm -f waves.vcd
 	rm -rf .Xil
 	rm -rf xsim.dir
+	rm -f waves.vcd
+	rm -f waves.wdb
+
+	echo "Removing Vivado-related log files"
+	rm -f vivado*.jou
+	rm -f vivado*.log
+	rm -f *.wdb
 endif
