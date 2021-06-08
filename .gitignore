@@ -4,6 +4,9 @@ test/xcelium.d/
 test/waves.shm/
 test/.simvision
 
+# ignore vim setup files
+*.vim-verilog/
+
 # ignore backup
 */bkp/
 */gomi/
