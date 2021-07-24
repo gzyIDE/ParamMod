@@ -13,4 +13,5 @@
 #set DEFAULT_DESIGN = "reduct"
 #set DEFAULT_DESIGN = "gather"
 #set DEFAULT_DESIGN = "scatter"
-set DEFAULT_DESIGN = "block_shift"
+#set DEFAULT_DESIGN = "block_shift"
+set DEFAULT_DESIGN = "ram"

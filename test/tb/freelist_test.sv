@@ -19,15 +19,15 @@ module freelist_test;
 	localparam RNUM = $clog2(READ)+1;
 	localparam WNUM = $clog2(WRITE)+1;
 
-	reg						clk;
-	reg						reset_;
-	reg						flush_;
-	reg [WRITE-1:0]			we_;
-	reg [WRITE*DATA-1:0]	wd;
-	reg [READ-1:0]			re_;
-	wire [READ*DATA-1:0]	rd;
-	wire [READ-1:0]			v;
-	wire					busy;
+	reg							clk;
+	reg							reset_;
+	reg							flush_;
+	reg [WRITE-1:0]				we_;
+	reg [WRITE-1:0][DATA-1:0]	wd;
+	reg [READ-1:0]				re_;
+	wire [READ-1:0][DATA-1:0]	rd;
+	wire [READ-1:0]				v;
+	wire						busy;
 
 	always #(STEP/2) begin
 		clk <= ~clk;
@@ -66,12 +66,12 @@ module freelist_test;
 			if ( BIT_VEC ) begin
 				for ( i = 0; i < wnum; i = i + 1 ) begin
 					we_[i] = `Enable_;
-					wd[`Range(i,DATA)] = 1 << (data + i);
+					wd[i] = 1 << (data + i);
 				end
 			end else begin
 				for ( i = 0; i < wnum; i = i + 1 ) begin
 					we_[i] = `Enable_;
-					wd[`Range(i,DATA)] = data + i;
+					wd[i] = data + i;
 				end
 			end
 			#(STEP);

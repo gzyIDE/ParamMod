@@ -1,17 +1,7 @@
 #!/bin/tcsh
 
 ##### File and Directory Settings #####
-set TOPDIR = ".."
-set RTLDIR = "${TOPDIR}/rtl"
-set TESTDIR = "${TOPDIR}/test"
-set GATEDIR = "${TOPDIR}/syn/result"
-set SV2VDIR = "${TOPDIR}/sv2v"
-set SV2VRTLDIR = "${SV2VDIR}/rtl"
-set SV2VTESTDIR = "${SV2VDIR}/test"
-set INCDIR = ( \
-	${TOPDIR}/include \
-	${TESTDIR} \
-)
+source config.sh
 set INCLUDE = ()
 set DEFINES = ()
 set RTL_FILE = ()
@@ -26,7 +16,7 @@ source target.sh
 
 ##### Output Wave
 set Waves = 1
-set WaveOpt
+set WaveOpt = ""
 
 
 
@@ -41,10 +31,10 @@ endif
 
 ##### Defines
 if ( $Waves =~ 1 ) then
-	set DEFINE_LIST = ( WAVE_DUMP )
-else 
-	set DEFINE_LIST = ()
+	set DEFINE_LIST = ( $DEFINE_LIST WAVE_DUMP )
 endif
+
+
 
 ##### Gate Level Simulation
 set GATE = 0
@@ -53,9 +43,9 @@ if ( $GATE =~ 1 ) then
 	set DEFINE_LIST = ($DEFINE_LIST NETLIST)
 endif
 
-#############################################
-#              Process Setting              #
-#############################################
+
+
+##### Process Setting
 #set Process = "ASAP7"
 set Process = "None"
 
@@ -65,29 +55,31 @@ switch ($Process)
 		set CELL_RTL_DIR = "${CELL_LIB}/asap7_7p5t_library/rev25/Verilog"
 		set DEFINE_LIST = (${DEFINE_LIST} ASAP7)
 
-		set LIB_FILE = ( \
-			-v $CELL_RTL_DIR/asap7sc7p5t_AO_RVT_TT_08302018.v \
-			-v $CELL_RTL_DIR/asap7sc7p5t_AO_LVT_TT_08302018.v \
-			-v $CELL_RTL_DIR/asap7sc7p5t_AO_SLVT_TT_08302018.v \
-			-v $CELL_RTL_DIR/asap7sc7p5t_AO_SRAM_TT_08302018.v \
-			-v $CELL_RTL_DIR/asap7sc7p5t_INVBUF_RVT_TT_08302018.v \
-			-v $CELL_RTL_DIR/asap7sc7p5t_INVBUF_LVT_TT_08302018.v \
-			-v $CELL_RTL_DIR/asap7sc7p5t_INVBUF_SLVT_TT_08302018.v \
-			-v $CELL_RTL_DIR/asap7sc7p5t_INVBUF_SRAM_TT_08302018.v \
-			-v $CELL_RTL_DIR/asap7sc7p5t_OA_RVT_TT_08302018.v \
-			-v $CELL_RTL_DIR/asap7sc7p5t_OA_LVT_TT_08302018.v \
-			-v $CELL_RTL_DIR/asap7sc7p5t_OA_SLVT_TT_08302018.v \
-			-v $CELL_RTL_DIR/asap7sc7p5t_OA_SRAM_TT_08302018.v \
-			-v $CELL_RTL_DIR/asap7sc7p5t_SEQ_RVT_TT_08302018.v \
-			-v $CELL_RTL_DIR/asap7sc7p5t_SEQ_LVT_TT_08302018.v \
-			-v $CELL_RTL_DIR/asap7sc7p5t_SEQ_SLVT_TT_08302018.v \
-			-v $CELL_RTL_DIR/asap7sc7p5t_SEQ_SRAM_TT_08302018.v \
-			-v $CELL_RTL_DIR/asap7sc7p5t_SIMPLE_RVT_TT_08302018.v \
-			-v $CELL_RTL_DIR/asap7sc7p5t_SIMPLE_LVT_TT_08302018.v \
-			-v $CELL_RTL_DIR/asap7sc7p5t_SIMPLE_SLVT_TT_08302018.v \
-			-v $CELL_RTL_DIR/asap7sc7p5t_SIMPLE_SRAM_TT_08302018.v \
+		set CORNERS = ( \
+			TT_08302018 \
 		)
+		#	FF_08302018 \
+		#	SS_08302018 \
+
+		set CELL_NAME = ( \
+			${CELL_RTL_DIR}/asap7sc7p5t_SIMPLE_RVT \
+			${CELL_RTL_DIR}/asap7sc7p5t_SEQ_RVT \
+			${CELL_RTL_DIR}/asap7sc7p5t_OA_RVT \
+			${CELL_RTL_DIR}/asap7sc7p5t_INVBUF_RVT \
+			${CELL_RTL_DIR}/asap7sc7p5t_AO_RVT \
+		)
+
+		set LIB_FILE = ()
+		foreach cell ( $CELL_NAME )
+			foreach corner ( $CORNERS )
+				set LIB_FILE = ( \
+					${LIB_FILE} \
+					${cell}_${corner}.v \
+				)
+			end
+		end
 	breaksw
+
 	default :
 		# Simulation with simple gate model (Process = "None")
 		# Nothing to set
@@ -95,9 +87,7 @@ switch ($Process)
 	breaksw
 endsw
 
-########################################
-#     Simulation Target Selection      #
-########################################
+###### Simulation Target Selection
 if ( $# =~ 0 ) then
 	set TOP_MODULE = $DEFAULT_DESIGN
 else
@@ -108,9 +98,7 @@ source module.sh
 
 
 
-########################################
-#        Simulation Tool Setup         #
-########################################
+##### Simulation Tool Setup
 switch( $SIM_TOOL )
 	case "ncverilog" :
 		if ( $Waves =~ 1 ) then
@@ -275,14 +263,15 @@ switch( $SIM_TOOL )
 
 	case "xilinx_sim" :
 		#if ( $Waves =~ 1 ) then
-		#	set WaveOpt = ( \
-		#		--define VCD \
-		#	)
+		#	set WaveOpt = (-d VCD)
 		#endif
 		# Output WDB instead
 
 		set SIM_OPT = ( \
 			$WaveOpt \
+		)
+
+		set SRC_EXT = ( \
 		)
 
 		foreach def ( $DEFINE_LIST )
@@ -308,26 +297,88 @@ endsw
 
 
 
-##############################
-#       run simulation       #
-##############################
+##### run simulation
 if ( ${SIM_TOOL} =~ "xilinx_sim" ) then
-	xvlog \
-		--sv \
-		${SIM_OPT} \
-		${INCLUDE} \
-		${DEFINES} \
-		${TEST_FILE} \
-		${LIB_FILE} \
-		${RTL_FILE}
+	mkdir -p xilinx/${TOP_MODULE}
+	set FILE_TCL = "./xilinx/${TOP_MODULE}/files.tcl"
+	set DEFINE_TCL = "./xilinx/${TOP_MODULE}/defines.tcl"
 
-	if ( $Waves ) then
-		xelab --debug all ${TOP_MODULE}_test
-		xsim --tclbatch xwaves.tcl --wdb waves.wdb ${TOP_MODULE}_test
-	else
-		xelab ${TOP_MODULE}_test
-		xsim --R ${TOP_MODULE}_test
-	endif
+	### set design target
+	echo "set TOP ${TOP_MODULE}" >! "./xilinx/top.tcl"
+
+	### generate tcl file to designate source flies
+	# Waveform configuration
+	echo "set WAVEFORM $Waves" >! ${FILE_TCL}
+
+	# Add Design RTL Files
+	echo "set DESIGN_FILES [list \\" >> ${FILE_TCL}
+	foreach files ( $RTL_FILE )
+		echo "$files \\" >> ${FILE_TCL}
+	end
+	echo "]" >> ${FILE_TCL}
+
+	# Add Test Files
+	echo "set TEST_FILES [list \\" >> ${FILE_TCL}
+	foreach files ( $TEST_FILE )
+		echo "$files \\" >> ${FILE_TCL}
+	end
+	echo "]" >> ${FILE_TCL}
+
+	# Add include directories
+	echo "set INCLUDE_DIRS [list \\" >> ${FILE_TCL}
+	foreach dirs ( $INCDIR )
+		echo "$dirs \\" >> ${FILE_TCL}
+	end
+	echo "]" >> ${FILE_TCL}
+
+	# Add define lists
+	echo "set DEFINE_LISTS [list \\" >! ${DEFINE_TCL}
+	foreach dirs ( $DEFINE_LIST )
+		echo "$dirs \\" >> ${DEFINE_TCL}
+	end
+	echo "]" >> ${DEFINE_TCL}
+
+	# create vivado projects for debug
+	vivado -mode batch -source ./xilinx/prj.tcl
+
+
+
+	#### Compile and simulation
+	#xvlog \
+	#	--sv \
+	#	${SIM_OPT} \
+	#	${INCLUDE} \
+	#	${DEFINES} \
+	#	${TEST_FILE} \
+	#	${LIB_FILE} \
+	#	${RTL_FILE}
+
+	#if ( $? =~ 1 ) then
+	#	echo "Failed at compilation!"
+	#	exit
+	#endif
+
+
+
+	#if ( $Waves ) then
+	#	set xelab_option = "--debug all"
+	#	set xsim_option = "--tclbatch ./xilinx/xwaves.tcl --wdb waves.wdb"
+	#else
+	#	set xelab_option = ""
+	#	set xsim_option = "--R"
+	#endif
+
+	#xelab ${xelab_option} ${TOP_MODULE}_test
+	#if ( $? =~ 1 ) then
+	#	echo "Failed at elaboration!"
+	#	exit
+	#endif
+
+	#xsim ${xsim_option} ${TOP_MODULE}_test
+	#if ( $? =~ 1 ) then
+	#	echo "Simulation failed!"
+	#	exit
+	#endif
 else
 	${SIM_TOOL} \
 		${SIM_OPT} \

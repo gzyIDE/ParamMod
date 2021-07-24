@@ -73,7 +73,15 @@ else if ( $SIM_TOOL =~ "xilinx_sim" ) then
 	rm -f waves.wdb
 
 	echo "Removing Vivado-related log files"
-	rm -f vivado*.jou
-	rm -f vivado*.log
-	rm -f *.wdb
+	rm -f vivado*.jou >& /dev/null
+	rm -f vivado*.log >& /dev/null
+	#rm -f *.wdb
+
+	pushd xilinx > /dev/null
+	foreach file ( `ls` )
+		if ( -d $file ) then
+			rm -rf $file
+		endif
+	end
+	popd > /dev/null
 endif

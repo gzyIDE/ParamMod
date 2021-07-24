@@ -2,7 +2,7 @@
 
 switch ( $TOP_MODULE )
 	case "pri_enc" :
-		set TEST_FILE = "${TOP_MODULE}_test.sv"
+		set TEST_FILE = ${TBDIR}/${TOP_MODULE}_test.sv
 		if ( $GATE =~ 1 ) then
 			set RTL_FILE = ( \
 				$RTL_FILE \
@@ -16,7 +16,7 @@ switch ( $TOP_MODULE )
 	breaksw
 
 	case "cnt_bits" :
-		set TEST_FILE = "${TOP_MODULE}_test.sv"
+		set TEST_FILE = ${TBDIR}/${TOP_MODULE}_test.sv
 		if ( $GATE =~ 1 ) then
 			set RTL_FILE = ( \
 				$RTL_FILE \
@@ -30,7 +30,7 @@ switch ( $TOP_MODULE )
 	breaksw
 
 	case "bin_dec" :
-		set TEST_FILE = "${TOP_MODULE}_test.sv"
+		set TEST_FILE = ${TBDIR}/${TOP_MODULE}_test.sv
 		if ( $GATE =~ 1 ) then
 			set RTL_FILE = ( \
 				$RTL_FILE \
@@ -44,7 +44,7 @@ switch ( $TOP_MODULE )
 	breaksw
 
 	case "fifo" :
-		set TEST_FILE = "${TOP_MODULE}_test.sv"
+		set TEST_FILE = ${TBDIR}/${TOP_MODULE}_test.sv
 		if ( $GATE =~ 1 ) then
 			set RTL_FILE = ( \
 				$RTL_FILE \
@@ -59,7 +59,7 @@ switch ( $TOP_MODULE )
 	breaksw
 
 	case "selector" :
-		set TEST_FILE = "${TOP_MODULE}_test.sv"
+		set TEST_FILE = ${TBDIR}/${TOP_MODULE}_test.sv
 		if ( $GATE =~ 1 ) then
 			set RTL_FILE = ( \
 				$RTL_FILE \
@@ -73,7 +73,7 @@ switch ( $TOP_MODULE )
 	breaksw
 
 	case "cam" :
-		set TEST_FILE = "${TOP_MODULE}_test.sv"
+		set TEST_FILE = ${TBDIR}/${TOP_MODULE}_test.sv
 		if ( $GATE =~ 1 ) then
 			set RTL_FILE = ( \
 				$RTL_FILE \
@@ -87,7 +87,7 @@ switch ( $TOP_MODULE )
 	breaksw
 
 	case "cam2" :
-		set TEST_FILE = "${TOP_MODULE}_test.sv"
+		set TEST_FILE = ${TBDIR}/${TOP_MODULE}_test.sv
 		if ( $GATE =~ 1 ) then
 			set RTL_FILE = ( \
 				$RTL_FILE \
@@ -102,7 +102,7 @@ switch ( $TOP_MODULE )
 	breaksw
 
 	case "ring_buf" :
-		set TEST_FILE = "${TOP_MODULE}_test.sv"
+		set TEST_FILE = ${TBDIR}/${TOP_MODULE}_test.sv
 		if ( $GATE =~ 1 ) then
 			set RTL_FILE = ( \
 				$RTL_FILE \
@@ -117,7 +117,7 @@ switch ( $TOP_MODULE )
 	breaksw
 
 	case "shifter" :
-		set TEST_FILE = "${TOP_MODULE}_test.sv"
+		set TEST_FILE = ${TBDIR}/${TOP_MODULE}_test.sv
 		if ( $GATE =~ 1 ) then
 			set RTL_FILE = ( \
 				$RTL_FILE \
@@ -132,7 +132,7 @@ switch ( $TOP_MODULE )
 	breaksw
 
 	case "regfile" :
-		set TEST_FILE = "${TOP_MODULE}_test.sv"
+		set TEST_FILE = ${TBDIR}/${TOP_MODULE}_test.sv
 		if ( $GATE =~ 1 ) then
 			set RTL_FILE = ( \
 				$RTL_FILE \
@@ -146,7 +146,7 @@ switch ( $TOP_MODULE )
 	breaksw
 
 	case "freelist" :
-		set TEST_FILE = "${TOP_MODULE}_test.sv"
+		set TEST_FILE = ${TBDIR}/${TOP_MODULE}_test.sv
 		if ( $GATE =~ 1 ) then
 			set RTL_FILE = ( \
 				$RTL_FILE \
@@ -162,7 +162,7 @@ switch ( $TOP_MODULE )
 	breaksw
 
 	case "sel_minmax" :
-		set TEST_FILE = "${TOP_MODULE}_test.sv"
+		set TEST_FILE = ${TBDIR}/${TOP_MODULE}_test.sv
 		if ( $GATE =~ 1 ) then
 			set RTL_FILE = ( \
 				$RTL_FILE \
@@ -177,7 +177,7 @@ switch ( $TOP_MODULE )
 	breaksw
 
 	case "stack" :
-		set TEST_FILE = "${TOP_MODULE}_test.sv"
+		set TEST_FILE = ${TBDIR}/${TOP_MODULE}_test.sv
 		if ( $GATE =~ 1 ) then
 			set RTL_FILE = ( \
 				$RTL_FILE \
@@ -192,7 +192,7 @@ switch ( $TOP_MODULE )
 	breaksw
 
 	case "reduct" :
-		set TEST_FILE = "${TOP_MODULE}_test.sv"
+		set TEST_FILE = ${TBDIR}/${TOP_MODULE}_test.sv
 		if ( $GATE =~ 1 ) then
 			set RTL_FILE = ( \
 				$RTL_FILE \
@@ -206,7 +206,7 @@ switch ( $TOP_MODULE )
 	breaksw
 
 	case "gather" :
-		set TEST_FILE = "${TOP_MODULE}_test.sv"
+		set TEST_FILE = ${TBDIR}/${TOP_MODULE}_test.sv
 		if ( $GATE =~ 1 ) then
 			set RTL_FILE = ( \
 				$RTL_FILE \
@@ -222,7 +222,7 @@ switch ( $TOP_MODULE )
 	breaksw
 
 	case "scatter" :
-		set TEST_FILE = "${TOP_MODULE}_test.sv"
+		set TEST_FILE = ${TBDIR}/${TOP_MODULE}_test.sv
 		if ( $GATE =~ 1 ) then
 			set RTL_FILE = ( \
 				$RTL_FILE \
@@ -238,7 +238,7 @@ switch ( $TOP_MODULE )
 	breaksw
 
 	case "block_shift" :
-		set TEST_FILE = "${TOP_MODULE}_test.sv"
+		set TEST_FILE = ${TBDIR}/${TOP_MODULE}_test.sv
 		if ( $GATE =~ 1 ) then
 			set RTL_FILE = ( \
 				$RTL_FILE \
@@ -248,6 +248,20 @@ switch ( $TOP_MODULE )
 			set RTL_FILE = ( \
 				${RTLDIR}/${TOP_MODULE}.sv \
 				${RTLDIR}/shifter.sv \
+			)
+		endif
+	breaksw
+
+	case "ram" :
+		set TEST_FILE = ${TBDIR}/${TOP_MODULE}_test.sv
+		if ( $GATE =~ 1 ) then
+			set RTL_FILE = ( \
+				$RTL_FILE \
+				${GATEDIR}/${TOP_MODULE}/${TOP_MODULE}.mapped.v \
+			)
+		else
+			set RTL_FILE = ( \
+				${RTLDIR}/${TOP_MODULE}.sv \
 			)
 		endif
 	breaksw
@@ -266,7 +280,7 @@ if ( $SV2V =~ 1 ) then
 	popd
 
 	# Test vector
-	set TEST_FILE = "$SV2VTESTDIR/${TOP_MODULE}_test.v"
+	set TEST_FILE = "${SV2VTESTDIR}/${TOP_MODULE}_test.v"
 
 	# DUT
 	set new_path = ()
@@ -274,7 +288,7 @@ if ( $SV2V =~ 1 ) then
 		set vfilename = `basename $file:r.v`
 		set new_path = ( \
 			$new_path \
-			$SV2VRTLDIR/$vfilename \
+			${SV2VRTLDIR}/${vfilename} \
 		)
 	end
 	set RTL_FILE = ( $new_path )

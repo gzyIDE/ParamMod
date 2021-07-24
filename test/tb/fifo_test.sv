@@ -22,7 +22,7 @@
 `endif
 
 module fifo_test;
-	parameter STEP = 1000;	//1GHz
+	parameter STEP = 10;
 	parameter CHECK = 1;	// delay for check
 	parameter DATA = 32;
 	parameter DEPTH = 16;
@@ -32,15 +32,15 @@ module fifo_test;
 	localparam RNUM = $clog2(READ);
 	localparam WNUM = $clog2(WRITE);
 
-	reg						clk;
-	reg						reset_;
-	reg						flush_;
-	reg [WRITE-1:0]			we_;
-	reg [WRITE*DATA-1:0]	wd;	
-	reg [READ-1:0]			re_;
-	wire [READ*DATA-1:0]	rd;
-	wire [READ-1:0]			valid;
-	wire					busy;
+	reg							clk;
+	reg							reset_;
+	reg							flush_;
+	reg [WRITE-1:0]				we_;
+	reg [WRITE-1:0][DATA-1:0]	wd;	
+	reg [READ-1:0]				re_;
+	wire [READ-1:0][DATA-1:0]	rd;
+	wire [READ-1:0]				valid;
+	wire						busy;
 
 	fifo #(
 		.DATA		( DATA ),
@@ -85,9 +85,9 @@ module fifo_test;
 		begin
 			we_ = {WRITE{`Disable_}};
 			for ( i = 0; i < num; i = i + 1 ) begin
-				wd[`Range(i,DATA)] = data + i;
+				wd[i] = data + i;
 `ifdef DUMP_RW_INFO
-				$display("write :%x", wd[`Range(i,DATA)]);
+				$display("write :%x", wd[i]);
 `endif
 				we_[i] = `Enable_;
 			end
@@ -121,7 +121,7 @@ module fifo_test;
 			re_ = {READ{`Disable_}};
 			for ( i = 0; i < num; i = i + 1 ) begin
 `ifdef DUMP_RW_INFO
-				$display("read : %x", rd[`Range(i,DATA)]);
+				$display("read : %x", rd[i]);
 `endif
 				re_[i] = `Enable_;
 			end
@@ -143,15 +143,15 @@ module fifo_test;
 			we_ = {WRITE{`Disable_}};
 			for ( i = 0; i < rnum; i = i + 1 ) begin
 `ifdef DUMP_RW_INFO
-				$display("read : %x", rd[`Range(i,DATA)]);
+				$display("read : %x", rd[i]);
 `endif
 				re_[i] = `Enable_;
 			end
 			for ( i = 0; i < wnum; i = i + 1 ) begin
 				we_[i] = `Enable_;
-				wd[`Range(i,DATA)] = data + i;
+				wd[i] = data + i;
 `ifdef DUMP_RW_INFO
-				$display("write :%x", wd[`Range(i,DATA)]);
+				$display("write :%x", wd[i]);
 `endif
 			end
 			#(STEP);
@@ -237,12 +237,7 @@ module fifo_test;
 		$finish;
 	end
 
-`ifdef SimVision
-	initial begin
-		$shm_open();
-		$shm_probe("ACF");
-	end
-`endif
+	`include "waves.vh"
 
 
 endmodule

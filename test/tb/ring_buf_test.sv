@@ -21,15 +21,15 @@ module ring_buf_test;
 	localparam ENABLE = ACT ? `Enable : `Enable_;
 	localparam DISABLE = ACT ? `Disable : `Disable_;
 
-	reg						clk;
-	reg						reset_;
-	reg						flush_;
-	reg [WRITE-1:0]			we;
-	reg [WRITE*DATA-1:0]	wd;
-	reg [READ-1:0]			re;
-	wire [READ*DATA-1:0]	rd;
-	wire [READ-1:0]			rv;
-	wire					busy;
+	reg							clk;
+	reg							reset_;
+	reg							flush_;
+	reg [WRITE-1:0]				we;
+	reg [WRITE-1:0][DATA-1:0]	wd;
+	reg [READ-1:0]				re;
+	wire [READ-1:0][DATA-1:0]	rd;
+	wire [READ-1:0]				rv;
+	wire						busy;
 
 	ring_buf #(
 		.DATA		( DATA ),
@@ -56,7 +56,7 @@ module ring_buf_test;
 		begin
 			we = {WRITE{DISABLE}};
 			for ( i = 0; i < num; i = i + 1 ) begin
-				wd[`Range(i,DATA)] = data + i;
+				wd[i] = data + i;
 				we[i] = ENABLE;
 			end
 			#(STEP);

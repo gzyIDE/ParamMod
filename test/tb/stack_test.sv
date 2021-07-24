@@ -19,15 +19,15 @@ module stack_test;
 	parameter WNUM = $clog2(PUSH)+1;
 	parameter RNUM = $clog2(POP)+1;
 
-	reg					clk;
-	reg					reset_;
-	reg					flush_;
-	reg [PUSH-1:0]		push_;
-	reg [PUSH*DATA-1:0]	wd;
-	reg [POP-1:0]		pop_;
-	wire [POP*DATA-1:0]	rd;
-	wire [POP-1:0]		v;
-	wire				busy;
+	reg							clk;
+	reg							reset_;
+	reg							flush_;
+	reg [PUSH-1:0]				push_;
+	reg [PUSH-1:0][DATA-1:0]	wd;
+	reg [POP-1:0]				pop_;
+	wire [POP-1:0][DATA-1:0]	rd;
+	wire [POP-1:0]				v;
+	wire						busy;
 
 	stack #(
 		.DATA		( DATA ),
@@ -54,7 +54,7 @@ module stack_test;
 		begin
 			push_ = {PUSH{`Disable_}};
 			for ( i = 0; i < num; i = i + 1 ) begin
-				wd[`Range(i,DATA)] = data + i;
+				wd[i] = data + i;
 				push_[i] = `Enable_;
 			end
 			#(STEP);
@@ -88,7 +88,7 @@ module stack_test;
 			end
 			for ( i = 0; i < wnum; i = i + 1 ) begin
 				push_[i] = `Enable_;
-				wd[`Range(i,DATA)] = data + i;
+				wd[i] = data + i;
 			end
 			#(STEP);
 			pop_ = {POP{`Disable_}};
