@@ -91,10 +91,11 @@ module fifo #(
 	generate
 		genvar gk, gl, gm;
 		for ( gk = 0; gk < INT_DEPTH; gk = gk + 1 ) begin : LP_data
-			wire [INT_READ*DATA-1:0]	rcand;			// candidate for read
-			wire [INT_READ-1:0]			rcand_valid;	// valid for read
-			wire [INT_READ+WRITE-1:0]	wcand_valid;	// valid for write
-			wire [DATA-1:0]				next_data_each;
+			//wire [INT_READ*DATA-1:0]		rcand;			// candidate for read
+			wire [INT_READ-1:0][DATA-1:0]	rcand;			// candidate for read
+			wire [INT_READ-1:0]				rcand_valid;	// valid for read
+			wire [INT_READ+WRITE-1:0]		wcand_valid;	// valid for write
+			wire [DATA-1:0]					next_data_each;
 			assign next_data[gk] = next_data_each;
 			assign {next_valid[gk], next_data_each}
 				= func_data(gk, flush_, wd, rcand, 
@@ -103,10 +104,10 @@ module fifo #(
 			//*** Shift Entry on read
 			for ( gl = 0; gl < INT_READ; gl = gl + 1 ) begin : LP_rcand
 				if ( gk + gl >= INT_DEPTH ) begin : IF_over_range
-					assign rcand[`Range(gl,DATA)] = {DATA{1'b0}};
+					assign rcand[gl] = {DATA{1'b0}};
 					assign rcand_valid[gl] = `Disable;
 				end else begin : IF_in_range
-					assign rcand[`Range(gl,DATA)] = data[gk+gl];
+					assign rcand[gl] = data[gk+gl];
 					assign rcand_valid[gl] = valid[gk+gl];
 				end
 			end
