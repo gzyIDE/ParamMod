@@ -122,7 +122,7 @@ module selector #(
 					.DATA	( DATA ),
 					.MSB	( MSB ),
 					.ACT	( ACT )
-				) sub_sel (
+				) sub_sel_st1 (
 					.in1	( in[gi*2] ),
 					.in2	( in[gi*2+1] ),
 					.sel1	( sel1 ),
@@ -168,7 +168,7 @@ module selector #(
 					.DATA	( DATA ),
 					.MSB	( MSB ),
 					.ACT	( ACT )
-				) sub_cnt (
+				) sub_sel_stN (
 					.in1	( res[(gj*2)+(EIN-(EIN>>(gi-2)))] ),
 					.in2	( res[(gj*2+1)+(EIN-(EIN>>(gi-2)))] ),
 					.sel1	( sel1 ),

@@ -52,7 +52,7 @@ module reduct #(
 				sub_reduct #(
 					.OPE	( OPE ),
 					.DATA	( DATA )
-				) sub_reduct (
+				) sub_reduct_st1 (
 					.in1	( in[gi*2] ), 
 					.in2	( in[gi*2+1] ),
 					.out	( res[gi] )
@@ -78,7 +78,7 @@ module reduct #(
 				sub_reduct #(
 					.OPE	( OPE ),
 					.DATA	( DATA )
-				) sub_reduct (
+				) sub_reduct_stN (
 					.in1	( res[(gj*2)+(EIN-(EIN>>(gi-2)))] ),
 					.in2	( res[(gj*2+1)+(EIN-(EIN>>(gi-2)))] ),
 					.out	( res[gj+(EIN-(EIN>>(gi-1)))] )

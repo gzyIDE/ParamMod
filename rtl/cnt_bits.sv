@@ -45,12 +45,12 @@ module cnt_bits #(
 
 
 			//***** bit counter
-			for ( gi = 0; gi < EIN / 2; gi = gi + 1 ) begin : ST0
+			for ( gi = 0; gi < EIN / 2; gi = gi + 1 ) begin : ST1
 				wire [1:0]		res_each;
 				if ( 2*gi+1 < IN ) begin : valid
 					sub_cnt #(
 						.IN		( 1 )
-					) sub_cnt (
+					) sub_cnt_st1 (
 						.in1	( ( in[gi*2] == ACT ) ),
 						.in2	( ( in[gi*2+1] == ACT ) ),
 						.out	( res_each )
@@ -69,7 +69,7 @@ module cnt_bits #(
 					wire [gi:0]		res_each;
 					sub_cnt #(
 						.IN		( gi )
-					) sub_cnt (
+					) sub_cnt_stN (
 						.in1	( res[(gj*2)+(EIN-(EIN>>(gi-2)))][gi-1:0] ),
 						.in2	( res[(gj*2+1)+(EIN-(EIN>>(gi-2)))][gi-1:0] ),
 						.out	( res_each )
