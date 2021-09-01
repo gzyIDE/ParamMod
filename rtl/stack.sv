@@ -8,6 +8,7 @@
 */
 
 `include "stddef.vh"
+`include "reset_config.vh"
 
 module stack #(
 	parameter DATA = 64,
@@ -17,7 +18,7 @@ module stack #(
 	parameter POP = 1
 )(
 	input wire						clk,
-	input wire						reset_,
+	input wire						reset,
 	input wire						flush_,	// clear buffer
 	input wire [PUSH-1:0]			push_,	// write enable
 	input wire [PUSH-1:0][DATA-1:0]	wd,		// write data
@@ -124,8 +125,8 @@ module stack #(
 
 	//***** Sequencial logics
 	int i;
-	always @( posedge clk or negedge reset_ ) begin
-		if ( reset_ == `Enable_ ) begin
+	always @( `ResetTrigger(clk, reset) ) begin
+		if ( reset == `ResetEnable ) begin
 			valid <= {AL_D{`Disable}};
 			ptr <= {ADDR{1'b0}};
 			for ( i = 0; i < AL_D; i = i + 1 ) begin

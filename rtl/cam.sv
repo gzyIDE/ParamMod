@@ -8,6 +8,7 @@
 */
 
 `include "stddef.vh"
+`include "reset_config.vh"
 
 module cam #(
 	parameter DATA = 16,
@@ -19,7 +20,7 @@ module cam #(
 	parameter ADDR = $clog2(DEPTH)
 )(
 	input  wire							clk,
-	input  wire							reset_,
+	input  wire							reset,
 
 	// write ports
 	input  wire [WRITE-1:0]				we_,	// write enable
@@ -133,8 +134,8 @@ module cam #(
 
 	//***** sequential logics
 	int i;
-	always @( posedge clk or negedge reset_ ) begin
-		if ( reset_ == `Enable_ ) begin
+	always @( `ResetTrigger(clk, reset) ) begin
+		if ( reset == `ResetEnable ) begin
 			for ( i = 0; i < DEPTH; i = i + 1 ) begin
 				cam_cell[i] <= {DATA{1'b0}};
 			end

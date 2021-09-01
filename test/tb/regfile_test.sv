@@ -1,4 +1,14 @@
+/*
+* <regfile.sv>
+* 
+* Copyright (c) 2021 Yosuke Ide <yosuke.ide@keio.jp>
+* 
+* This software is released under the MIT License.
+* http://opensource.org/licenses/mit-license.php
+*/
+
 `include "stddef.vh"
+`include "reset_config.vh"
 
 `ifdef GATE_SIM
  `timescale 1ns/10ps
@@ -16,7 +26,7 @@ module regfile_test;
 	localparam WNUM = $clog2(WRITE) + 1;
 
 	reg						clk;
-	reg						reset_;
+	reg						reset;
 	reg [ADDR*READ-1:0]		raddr;
 	wire [DATA*READ-1:0]	rdata;
 	reg [WRITE-1:0]			we_;
@@ -35,7 +45,7 @@ module regfile_test;
 		.ZERO_REG	( ZERO_REG )
 	) rf (
 		.clk		( clk ),
-		.reset_		( reset_ ),
+		.reset		( reset ),
 		.raddr		( raddr ),
 		.waddr		( waddr ),
 		.we_		( we_ ),
@@ -92,10 +102,10 @@ module regfile_test;
 
 	initial begin
 		clk	<= `Low;
-		reset_ <= `Enable_;
+		reset <= `ResetEnable;
 		reg_clear;
 		#(STEP)
-		reset_ <= `Disable_;
+		reset <= `ResetDisable;
 		#(STEP)
 		// Read/Write check
 		b_set(0, 31, 31); 

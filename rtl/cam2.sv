@@ -1,13 +1,14 @@
 /*
 * <cam2.sv>
 * 
-* Copyright (c) 2020 Yosuke Ide <yosuke.ide@keio.jp>
+* Copyright (c) 2020-2021 Yosuke Ide <yosuke.ide@keio.jp>
 * 
 * This software is released under the MIT License.
 * http://opensource.org/licenses/mit-license.php
 */
 
 `include "stddef.vh"
+`include "reset_config.vh"
 
 module cam2 #(
 	parameter DATA = 16,
@@ -19,7 +20,7 @@ module cam2 #(
 	parameter ADDR = $clog2(DEPTH)
 )(
 	input  wire							clk,
-	input  wire							reset_,
+	input  wire							reset,
 
 	// write ports
 	input  wire [WRITE-1:0]				we_,	// write enable
@@ -154,8 +155,8 @@ module cam2 #(
 
 	//***** sequential logics
 	integer i;
-	always @( posedge clk or negedge reset_ ) begin
-		if ( reset_ == `Enable_ ) begin
+	always @( `ResetTrigger(clk, reset) ) begin
+		if ( reset == `ResetEnable ) begin
 			for ( i = 0; i < DEPTH; i = i + 1 ) begin
 				cam_cell[i] <= {DATA{1'b0}};
 			end

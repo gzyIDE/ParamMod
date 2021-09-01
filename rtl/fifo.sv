@@ -8,6 +8,7 @@
 */
 
 `include "stddef.vh"
+`include "reset_config.vh"
 
 // First in First out queue
 module fifo #(
@@ -19,7 +20,7 @@ module fifo #(
 	parameter ACT = `Low	// polarity of re, we
 )(
 	input wire							clk,
-	input wire							reset_,
+	input wire							reset,
 	input wire							flush_,		// clear buffer
 	input wire [WRITE-1:0]				we,			// write enable
 	input wire [WRITE-1:0][DATA-1:0]	wd,			// write data
@@ -183,8 +184,8 @@ module fifo #(
 	
 	//***** sequantial logics
 	int i;
-	always_ff @( posedge clk or negedge reset_ ) begin
-		if ( reset_ == `Enable_ ) begin
+	always_ff @( `ResetTrigger(clk,reset) ) begin
+		if ( reset == `ResetEnable ) begin
 			valid <= {INT_DEPTH{1'b0}};
 			data <= {INT_DEPTH*DATA{1'b0}};
 		end else begin

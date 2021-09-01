@@ -15,9 +15,9 @@ task set_write;
 	input [ADDR-1:0]	addr;
 	begin
 		we_[idx] = `Enable_;
-		wm[`Range(idx,DATA)] = mask;
-		wd[`Range(idx,DATA)] = data;
-		waddr[`Range(idx,ADDR)] = addr;
+		wm[idx] = mask;
+		wd[idx] = data;
+		waddr[idx] = addr;
 	end
 endtask
 
@@ -39,8 +39,8 @@ task set_read;
 	input [DATA-1:0]	data;
 	begin
 		re_[idx] = `Enable_;
-		rm[`Range(idx,DATA)] = mask;
-		rd[`Range(idx,DATA)] = data;
+		rm[idx] = mask;
+		rd[idx] = data;
 	end
 endtask
 
@@ -59,7 +59,7 @@ always @( posedge clk ) begin
 	for ( mi = 0; mi < WRITE; mi = mi + 1 ) begin
 		if ( !we_[mi] ) begin
 			$display("write[%d] : addr = %d, data = %x",
-				mi, waddr[`Range(mi,ADDR)], wd[`Range(mi,DATA)]);
+				mi, waddr[mi], wd[mi]);
 		end
 	end
 	/* read check */
@@ -67,9 +67,9 @@ always @( posedge clk ) begin
 		if ( !re_[mi] ) begin
 			if ( match[mi] ) begin
 				$display("read[%d] : addr = %d, data = %x",
-					mi, raddr[`Range(mi,ADDR)], rd[`Range(mi,DATA)]);
+					mi, raddr[mi], rd[mi]);
 			end else begin
-				$display("read data[%x] not found", rd[`Range(mi,DATA)]);
+				$display("read data[%x] not found", rd[mi]);
 			end
 		end
 	end

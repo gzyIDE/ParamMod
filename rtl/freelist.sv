@@ -8,6 +8,7 @@
 */
 
 `include "stddef.vh"
+`include "reset_config.vh"
 
 // Tag distributer that manages free list.
 module freelist #(
@@ -21,7 +22,7 @@ module freelist #(
 	parameter DATA = BIT_VEC ? DEPTH : $clog2(DEPTH)
 )(
 	input wire							clk,
-	input wire							reset_,
+	input wire							reset,
 	input wire							flush_,		// clear buffer
 	input wire [WRITE-1:0]				we_,		// collect
 	input wire [WRITE-1:0][DATA-1:0]	wd,			// collect tags
@@ -205,8 +206,8 @@ module freelist #(
 
 
 	//***** sequential logics
-	always_ff @( posedge clk or negedge reset_ ) begin
-		if ( reset_ == `Enable_ ) begin
+	always_ff @( `ResetTrigger(clk, reset) ) begin
+		if ( reset == `ResetEnable ) begin
 			usage <= {DEPTH{`Disable}};
 			busy_reg <= `Disable;
 		end else begin

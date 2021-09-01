@@ -20,7 +20,7 @@ module stack_test;
 	parameter RNUM = $clog2(POP)+1;
 
 	reg							clk;
-	reg							reset_;
+	reg							reset;
 	reg							flush_;
 	reg [PUSH-1:0]				push_;
 	reg [PUSH-1:0][DATA-1:0]	wd;
@@ -37,7 +37,7 @@ module stack_test;
 		.POP		( POP )
 	) stack (
 		.clk		( clk ),
-		.reset_		( reset_ ),
+		.reset		( reset ),
 		.flush_		( flush_ ),
 		.push_		( push_ ),
 		.wd			( wd ),
@@ -102,13 +102,13 @@ module stack_test;
 
 	initial begin
 		clk <= `Low;
-		reset_ <= `Enable_;
+		reset <= `ResetEnable;
 		flush_ <= `Disable_;
 		push_ <= {PUSH{`Disable_}};
 		wd <= {PUSH*DATA{1'b0}};
 		pop_ <= {POP{`Disable_}};
 		#(STEP*5);
-		reset_ <= `Disable_;
+		reset <= `ResetDisable;
 		#(STEP*5);
 		mRnW(32'hdeadbeef, 1, 0);
 		#(STEP*5);

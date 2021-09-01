@@ -8,6 +8,7 @@
 */
 
 `include "stddef.vh"
+`include "reset_config.vh"
 `include "sim.vh"
 
 //`define DUMP_RW_INFO
@@ -33,7 +34,7 @@ module fifo_test;
 	localparam WNUM = $clog2(WRITE);
 
 	reg							clk;
-	reg							reset_;
+	reg							reset;
 	reg							flush_;
 	reg [WRITE-1:0]				we_;
 	reg [WRITE-1:0][DATA-1:0]	wd;	
@@ -51,7 +52,7 @@ module fifo_test;
 		.ACT		( `Low )
 	) fifo (
 		.clk		( clk ),
-		.reset_		( reset_ ),
+		.reset		( reset ),
 		.flush_		( flush_ ),
 		.we			( we_ ),
 		.wd			( wd ),
@@ -182,13 +183,13 @@ module fifo_test;
 
 	initial begin
 		clk <= `Low;
-		reset_ <= `Enable_;
+		reset <= `ResetEnable;
 		flush_ <= `Disable_;
 		we_ <= {WRITE{`Disable_}};
 		re_ <= {READ{`Disable_}};
 		wd <= {WRITE*DATA{1'b0}};
 		#(STEP*10);
-		reset_ <= `Disable_;
+		reset <= `ResetDisable;
 		#(STEP*10);
 
 		/*** single read/write ***/

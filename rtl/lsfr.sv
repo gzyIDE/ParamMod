@@ -8,6 +8,7 @@
 */
 
 `include "stddef.vh"
+`include "reset_config.vh"
 
 // Pseudo random sequence generator
 //    - Reference of generation polinomial
@@ -18,7 +19,7 @@ module lsfr #(
 	// constant
 )(
 	input wire					clk,
-	input wire					reset_,
+	input wire					reset,
 	output wire [DATA-1:0]		out
 );
 
@@ -112,8 +113,8 @@ module lsfr #(
 
 
 	//***** sequential logics
-	always @( posedge clk or negedge reset_ ) begin
-		if ( reset_ == `Enable_ ) begin
+	always @( `ResetTrigger(clk, reset) ) begin
+		if ( reset == `ResetEnable ) begin
 			rand_reg <= {{DATA-1{1'b0}}, 1'b1};
 		end else begin
 			rand_reg <= next_rand_reg;

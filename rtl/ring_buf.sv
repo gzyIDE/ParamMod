@@ -8,6 +8,7 @@
 */
 
 `include "stddef.vh"
+`include "reset_config.vh"
 
 // Ring buffer
 module ring_buf #(
@@ -20,7 +21,7 @@ module ring_buf #(
 	parameter byte ADDR = $clog2(DEPTH)
 )(
 	input wire							clk,
-	input wire							reset_,
+	input wire							reset,
 	input wire							flush_,		// clear buffer
 
 	input wire [WRITE-1:0]				we,			// write enable
@@ -118,8 +119,8 @@ module ring_buf #(
 
 	//***** sequential logics
 	integer i;
-	always @( posedge clk or negedge reset_ ) begin
-		if ( reset_ == `Enable_ ) begin
+	always @( `ResetTrigger(clk,reset) ) begin
+		if ( reset == `ResetEnable ) begin
 			head <= {ADDR{1'b0}};
 			tail <= {ADDR{1'b0}};
 			valid <= {DEPTH{DISABLE}};

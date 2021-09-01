@@ -8,6 +8,7 @@
 */
 
 `include "stddef.vh"
+`include "reset_config.vh"
 
 module regfile #(
 	parameter DATA = 32,				// bit width of register
@@ -17,7 +18,7 @@ module regfile #(
 	parameter bit ZERO_REG = `Disable	// for GPR ( regs[0] is Zero reigister )
 )(
 	input wire							clk,
-	input wire							reset_,
+	input wire							reset,
 	input wire [READ-1:0][ADDR-1:0]		raddr,
 	input wire [WRITE-1:0][ADDR-1:0]	waddr,
 	input wire [WRITE-1:0]				we_,
@@ -63,9 +64,9 @@ module regfile #(
 
 
 	//***** sequantial logics
-	always_ff @( posedge clk or negedge reset_ ) begin
+	always_ff @( `ResetTrigger(clk, reset) ) begin
 		int i;
-		if ( reset_ == `Enable_ ) begin
+		if ( reset == `ResetEnable ) begin
 			for ( i = 0; i < DEPTH; i = i + 1 ) begin
 				regs[i] <= {DATA{1'b0}};
 			end

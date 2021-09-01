@@ -8,11 +8,12 @@
 */
 
 `include "stddef.vh"
+`include "reset_config.vh"
 `include "sim.vh"
 
 `timescale 1ns/10ps
 
-module cam_test;
+module cam2_test;
 	parameter MANUAL = `Enable;
 	//parameter MANULA = `Disable;
 	parameter STEP = 10;
@@ -24,22 +25,22 @@ module cam_test;
 	// constant
 	parameter ADDR = $clog2(DEPTH);
 
-	reg						clk;
-	reg						reset_;
+	reg							clk;
+	reg							reset;
 
 	/* write */
-	reg [WRITE-1:0]			we_;
-	reg [DATA*WRITE-1:0]	wm;
-	reg [DATA*WRITE-1:0]	wd;
-	reg [ADDR*WRITE-1:0]	waddr;
+	reg [WRITE-1:0]				we_;
+	reg [WRITE-1:0][DATA-1:0]	wm;
+	reg [WRITE-1:0][DATA-1:0]	wd;
+	reg [WRITE-1:0][ADDR-1:0]	waddr;
 
 	/* read */
-	reg [READ-1:0]			re_;
-	reg [DATA*READ-1:0]		rm;
-	reg [DATA*READ-1:0]		rd;
-	wire [READ-1:0]			match;
-	wire [READ-1:0]			multi;
-	wire [ADDR*READ-1:0]	raddr;
+	reg [READ-1:0]				re_;
+	reg [READ-1:0][DATA-1:0]	rm;
+	reg [READ-1:0][DATA-1:0]	rd;
+	wire [READ-1:0]				match;
+	wire [READ-1:0]				multi;
+	wire [READ-1:0][ADDR-1:0]	raddr;
 
 
 
@@ -70,7 +71,7 @@ module cam_test;
 	integer i;
 	initial begin
 		clk <= `Low;
-		reset_ <= `Enable_;
+		reset <= `ResetEnable;
 		we_ <= {WRITE{`Disable_}};
 		wm <= {DATA*WRITE{`Disable}};
 		wd <= {DATA*WRITE{1'b0}};
@@ -79,7 +80,7 @@ module cam_test;
 		rm <= {DATA*READ{`Disable}};
 		rd <= {DATA*READ{1'b0}};
 		#(STEP);
-		reset_ <= `Disable_;
+		reset <= `ResetDisable;
 
 
 		/***** read/write check *****/

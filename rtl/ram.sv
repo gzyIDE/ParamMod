@@ -14,6 +14,7 @@
 // </asciidoc>
 
 `include "stddef.vh"
+`include "reset_config.vh"
 
 module ram #(
 	// <asciidoc>
@@ -39,8 +40,8 @@ module ram #(
 	// == Input/Output signals
 	// clk ::
 	//		Clock signal
-	// reset_ ::
-	//		Reset signal (active low)
+	// reset ::
+	//		Reset signal (configurable)
 	// en_ ::
 	//		Read/Write access enable (active low)
 	// rw_ ::
@@ -53,7 +54,7 @@ module ram #(
 	//		Read data
 	// </asciidoc>
 	input wire							clk,
-	input wire							reset_,
+	input wire							reset,
 	input wire [PORT-1:0]				en_,
 	input wire [PORT-1:0]				rw_,
 	input wire [PORT-1:0][ADDR-1:0]		addr,
@@ -79,8 +80,8 @@ module ram #(
 	//***** parameter dependent
 	generate
 		if ( OUTREG ) begin
-			always_ff @( posedge clk or negedge reset_ ) begin
-				if ( reset_ == `Enable_ ) begin
+			always_ff @( `ResetTrigger(clk, reset) ) begin
+				if ( reset == `ResetEnable ) begin
 					foreach ( rdata[i] ) begin
 						rdata[i] <= {DATA{1'b0}};
 					end
@@ -110,9 +111,9 @@ module ram #(
 
 
 	//***** sequential logics
-	always_ff @( posedge clk or negedge reset_ ) begin
+	always_ff @( `ResetTrigger(clk, reset) ) begin
 		int i;
-		if ( reset_ == `Enable_ ) begin
+		if ( reset == `ResetEnable ) begin
 			foreach ( ram_reg[i] ) begin
 				ram_reg[i] <= {DATA{1'b0}};
 			end

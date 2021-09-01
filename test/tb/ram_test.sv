@@ -8,6 +8,7 @@
 */
 
 `include "stddef.vh"
+`include "reset_config.vh"
 `include "sim.vh"
 
 module ram_test;
@@ -19,7 +20,7 @@ module ram_test;
 	parameter ADDR = $clog2(DEPTH);
 
 	reg							clk;
-	reg							reset_;
+	reg							reset;
 	reg [PORT-1:0]				en_;
 	reg [PORT-1:0]				rw_;
 	reg [PORT-1:0][ADDR-1:0]	addr;
@@ -78,14 +79,14 @@ module ram_test;
 	//***** test body
 	initial begin
 		clk = `Low;
-		reset_ = `Enable_;
+		reset = `ResetEnable;
 		en_ = {PORT{`Disable_}};
 		rw_ = {PORT{`Read}};
 		addr = 0;
 		wdata = 0;
 
 		#(STEP);
-		reset_ = `Disable_;
+		reset = `ResetDisable;
 
 		#(STEP);
 		// write "deadbeef" to ram[0] from port0

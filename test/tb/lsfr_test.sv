@@ -12,12 +12,12 @@
 
 module lsfr_test;
 	parameter STEP = 10;
-	parameter DATA = 16;
+	parameter DATA = 8;
 	parameter PATTERNS = ( 1 << DATA ) - 1;
 
 	//***** signals
 	reg					clk;
-	reg					reset_;
+	reg					reset;
 	wire [DATA-1:0]		out;
 
 	//***** output status
@@ -42,9 +42,9 @@ module lsfr_test;
 	int i;
 	initial begin : test_body
 		clk = `Low;
-		reset_ = `Enable_;
+		reset = `ResetEnable;
 		#(STEP);
-		reset_ = `Disable_;
+		reset = `ResetDisable;
 
 		out_stat[0] = 1;
 		for ( i = 0; i < PATTERNS; i = i + 1 ) begin

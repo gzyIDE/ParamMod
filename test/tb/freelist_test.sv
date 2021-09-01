@@ -8,6 +8,7 @@
 */
 
 `include "stddef.vh"
+`include "reset_config.vh"
 
 module freelist_test;
 	parameter STEP = 10;
@@ -20,7 +21,7 @@ module freelist_test;
 	localparam WNUM = $clog2(WRITE)+1;
 
 	reg							clk;
-	reg							reset_;
+	reg							reset;
 	reg							flush_;
 	reg [WRITE-1:0]				we_;
 	reg [WRITE-1:0][DATA-1:0]	wd;
@@ -42,7 +43,7 @@ module freelist_test;
 		.BIT_VEC	( BIT_VEC )
 	) freelist (
 		.clk	( clk ),
-		.reset_	( reset_ ),
+		.reset	( reset ),
 		.flush_	( flush_ ),
 		.we_	( we_ ),
 		.wd		( wd ),
@@ -82,13 +83,13 @@ module freelist_test;
 
 	initial begin
 		clk <= `Low;
-		reset_ <= `Enable_;
+		reset <= `ResetEnable;
 		flush_ <= `Disable_;
 		we_ <= {WRITE{`Disable_}};
 		wd <= {WRITE*DATA{1'b0}};
 		re_ <= {READ{`Disable_}};
 		#(STEP*5);
-		reset_ <= `Disable_;
+		reset <= `ResetDisable;
 		#(STEP*5);
 		mRnW(32'h00000000, 0, 2);
 		mRnW(32'h00000000, 0, 3);

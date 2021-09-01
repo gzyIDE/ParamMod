@@ -8,6 +8,7 @@
 */
 
 `include "stddef.vh"
+`include "reset_config.vh"
 
 module ring_buf_test;
 	parameter STEP = 10;
@@ -22,7 +23,7 @@ module ring_buf_test;
 	localparam DISABLE = ACT ? `Disable : `Disable_;
 
 	reg							clk;
-	reg							reset_;
+	reg							reset;
 	reg							flush_;
 	reg [WRITE-1:0]				we;
 	reg [WRITE-1:0][DATA-1:0]	wd;
@@ -39,7 +40,7 @@ module ring_buf_test;
 		.ACT		( ACT )
 	) ring (
 		.clk		( clk ),
-		.reset_		( reset_ ),
+		.reset		( reset ),
 		.flush_		( flush_ ),
 		.we			( we ),
 		.wd			( wd ),
@@ -92,13 +93,13 @@ module ring_buf_test;
 
 	initial begin
 		clk <= `Low;
-		reset_ <= `Enable_;
+		reset <= `ResetEnable;
 		flush_ <= `Disable_;
 		we <= {WRITE{DISABLE}};
 		wd <= {WRITE*DATA{1'b0}};
 		re <= {READ{DISABLE}};
 		#(STEP);
-		reset_ <= `Disable_;
+		reset <= `ResetDisable;
 		#(STEP);
 		write_n(32'h1, 2);
 		#(STEP*2);
