@@ -33,6 +33,7 @@ module ram #(
 	parameter DEPTH = 4,
 	parameter PORT = 1,
 	parameter bit OUTREG = `Disable,
+	parameter string MEM_FILE = "none",
 	// constant
 	parameter ADDR = $clog2(DEPTH)
 )(
@@ -123,6 +124,21 @@ module ram #(
 					ram_reg[addr[i]] <= wdata[i];
 				end
 			end
+		end
+	end
+
+
+
+	//***** memory initialize
+	initial begin
+		// initialize memory at reset negated
+`ifdef PosedgeReset
+		@( negedge reset );
+`else
+		@( posedge reset );
+`endif
+		if ( MEM_FILE != "none" ) begin
+			$readmemh(MEM_FILE, ram_reg);
 		end
 	end
 

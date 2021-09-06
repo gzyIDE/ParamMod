@@ -20,6 +20,7 @@ set INCDIR = ( \
 # Define
 set DEFINE_LIST = ( \
 	SIMULATION \
+	MEM_FILE=\\\"${TESTDIR}/sample.mem\\\" \
 )
 
 # Caution
