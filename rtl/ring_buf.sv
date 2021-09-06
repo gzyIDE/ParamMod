@@ -119,7 +119,7 @@ module ring_buf #(
 
 	//***** sequential logics
 	integer i;
-	always @( `ResetTrigger(clk,reset) ) begin
+	always @( `ClkRstTrigger(clk,reset) ) begin
 		if ( reset == `ResetEnable ) begin
 			head <= {ADDR{1'b0}};
 			tail <= {ADDR{1'b0}};

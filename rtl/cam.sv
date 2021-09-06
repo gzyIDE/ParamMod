@@ -134,7 +134,7 @@ module cam #(
 
 	//***** sequential logics
 	int i;
-	always @( `ResetTrigger(clk, reset) ) begin
+	always @( `ClkRstTrigger(clk, reset) ) begin
 		if ( reset == `ResetEnable ) begin
 			for ( i = 0; i < DEPTH; i = i + 1 ) begin
 				cam_cell[i] <= {DATA{1'b0}};

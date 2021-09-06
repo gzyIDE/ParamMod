@@ -184,7 +184,7 @@ module fifo #(
 	
 	//***** sequantial logics
 	int i;
-	always_ff @( `ResetTrigger(clk,reset) ) begin
+	always_ff @( `ClkRstTrigger(clk,reset) ) begin
 		if ( reset == `ResetEnable ) begin
 			valid <= {INT_DEPTH{1'b0}};
 			data <= {INT_DEPTH*DATA{1'b0}};

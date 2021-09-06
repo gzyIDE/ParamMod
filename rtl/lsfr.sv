@@ -113,7 +113,7 @@ module lsfr #(
 
 
 	//***** sequential logics
-	always @( `ResetTrigger(clk, reset) ) begin
+	always @( `ClkRstTrigger(clk, reset) ) begin
 		if ( reset == `ResetEnable ) begin
 			rand_reg <= {{DATA-1{1'b0}}, 1'b1};
 		end else begin

@@ -64,7 +64,7 @@ module regfile #(
 
 
 	//***** sequantial logics
-	always_ff @( `ResetTrigger(clk, reset) ) begin
+	always_ff @( `ClkRstTrigger(clk, reset) ) begin
 		int i;
 		if ( reset == `ResetEnable ) begin
 			for ( i = 0; i < DEPTH; i = i + 1 ) begin

@@ -42,10 +42,10 @@
 //		Call in "always_ff @(`ResetTrigger)".
 `ifdef AsyncReset
 	// Asynchronous and Active High resetting
-	`define ResetTrigger(C,R)	posedge C or `ResetEdge R
+	`define ClkRstTrigger(C, R)	posedge C or `ResetEdge R
 `elsif SyncReset
 	// Synchronous and Active High resetting
-	`define ResetTrigger(C,R)	posedge C
+	`define ClkRstTrigger(C, R)	posedge C
 `endif
 
 `endif // _RESET_CONFIG_VH_INCLUDED_

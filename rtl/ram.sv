@@ -81,7 +81,7 @@ module ram #(
 	//***** parameter dependent
 	generate
 		if ( OUTREG ) begin
-			always_ff @( `ResetTrigger(clk, reset) ) begin
+			always_ff @( `ClkRstTrigger(clk, reset) ) begin
 				if ( reset == `ResetEnable ) begin
 					foreach ( rdata[i] ) begin
 						rdata[i] <= {DATA{1'b0}};
@@ -112,7 +112,7 @@ module ram #(
 
 
 	//***** sequential logics
-	always_ff @( `ResetTrigger(clk, reset) ) begin
+	always_ff @( `ClkRstTrigger(clk, reset) ) begin
 		int i;
 		if ( reset == `ResetEnable ) begin
 			foreach ( ram_reg[i] ) begin

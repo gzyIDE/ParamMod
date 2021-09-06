@@ -206,7 +206,7 @@ module freelist #(
 
 
 	//***** sequential logics
-	always_ff @( `ResetTrigger(clk, reset) ) begin
+	always_ff @( `ClkRstTrigger(clk, reset) ) begin
 		if ( reset == `ResetEnable ) begin
 			usage <= {DEPTH{`Disable}};
 			busy_reg <= `Disable;

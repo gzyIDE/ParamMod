@@ -125,7 +125,7 @@ module stack #(
 
 	//***** Sequencial logics
 	int i;
-	always @( `ResetTrigger(clk, reset) ) begin
+	always @( `ClkRstTrigger(clk, reset) ) begin
 		if ( reset == `ResetEnable ) begin
 			valid <= {AL_D{`Disable}};
 			ptr <= {ADDR{1'b0}};
