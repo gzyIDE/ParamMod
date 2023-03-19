@@ -7,21 +7,20 @@
 * http://opensource.org/licenses/mit-license.php
 */
 
-`include "stddef.vh"
-`include "reset_config.vh"
+`include "parammod_stddef.vh"
 `include "sim.vh"
 
 `timescale 1ns/10ps
 
 module cam2_test;
-	parameter MANUAL = `Enable;
-	//parameter MANULA = `Disable;
+	parameter MANUAL = `ENABLE;
+	//parameter MANULA = `DISABLE;
 	parameter STEP = 10;
 	parameter DATA = 32;
 	parameter DEPTH = 32;
 	parameter WRITE = 4;
 	parameter READ = 4;
-	parameter TAIL = `Enable;
+	parameter MSB = `ENABLE;
 	// constant
 	parameter ADDR = $clog2(DEPTH);
 
@@ -29,13 +28,13 @@ module cam2_test;
 	reg							reset;
 
 	/* write */
-	reg [WRITE-1:0]				we_;
+	reg [WRITE-1:0]				we;
 	reg [WRITE-1:0][DATA-1:0]	wm;
 	reg [WRITE-1:0][DATA-1:0]	wd;
 	reg [WRITE-1:0][ADDR-1:0]	waddr;
 
 	/* read */
-	reg [READ-1:0]				re_;
+	reg [READ-1:0]				re;
 	reg [READ-1:0][DATA-1:0]	rm;
 	reg [READ-1:0][DATA-1:0]	rd;
 	wire [READ-1:0]				match;
@@ -46,12 +45,11 @@ module cam2_test;
 
 	/***** instanciate module *****/
 	cam2 #(
-		.MANUAL		( MANUAL ),
 		.DATA		( DATA ),
-		.DEPTH		( DEPTH ),
-		.WRITE		( WRITE ),
+		.DEPTH	( DEPTH ),
+		.WRITE	( WRITE ),
 		.READ		( READ ),
-		.TAIL		( TAIL )
+		.MSB    ( MSB )
 	) cam (
 		.*
 	);
@@ -70,17 +68,17 @@ module cam2_test;
 	/***** simulation body *****/
 	integer i;
 	initial begin
-		clk <= `Low;
-		reset <= `ResetEnable;
-		we_ <= {WRITE{`Disable_}};
-		wm <= {DATA*WRITE{`Disable}};
+		clk <= `LOW;
+		reset <= `ENABLE;
+		we <= {WRITE{`DISABLE}};
+		wm <= {DATA*WRITE{`DISABLE_}};
 		wd <= {DATA*WRITE{1'b0}};
 		waddr <= {ADDR*WRITE{1'b0}};
-		re_ <= {READ{`Disable_}};
-		rm <= {DATA*READ{`Disable}};
+		re <= {READ{`DISABLE}};
+		rm <= {DATA*READ{`DISABLE}};
 		rd <= {DATA*READ{1'b0}};
 		#(STEP);
-		reset <= `ResetDisable;
+		reset <= `DISABLE;
 
 
 		/***** read/write check *****/
@@ -114,7 +112,7 @@ module cam2_test;
 
 		`SetCharCyan
 		`SetCharBold
-		if ( TAIL ) begin
+		if ( MSB ) begin
 			$display("\nsynonym check (read from tail)");
 		end else begin
 			$display("\nsynonym check (read from head)");

@@ -7,41 +7,38 @@
 * http://opensource.org/licenses/mit-license.php
 */
 
-`include "stddef.vh"
+`include "parammod_stddef.vh"
 
 // Binary Decoder
 module bin_dec #(
-	parameter IN = 4,
-	parameter ACT = `High,
-	// constant
-	parameter OUT = 1 << IN
+  parameter IN  = 4,
+  parameter ACT = `HIGH,
+  // constant
+  parameter OUT = 1 << IN
 )(
-	input wire [IN-1:0]		in,
-	output wire [OUT-1:0]	out
+  input wire [IN-1:0]    in,
+  output wire [OUT-1:0]  out
 );
 
-	//***** internal parameter
-	localparam ENABLE = ACT ? `Enable : `Enable_;
-	localparam DISABLE = ACT ? `Disable : `Disable_;
+//***** internal parameter
+localparam ENABLE  = ACT ? `ENABLE : `ENABLE_;
+localparam DISABLE = ACT ? `DISABLE : `DISABLE_;
 
 
-
-	//***** Logic for Combinational logic
-	logic [OUT-1:0]		out_l;
-
+//***** Logic for Combinational logic
+logic [OUT-1:0]    out_l;
 
 
-	//***** assign output
-	assign out = out_l;
+//***** assign output
+assign out = out_l;
 
 
-
-	//***** decode
-	int i;
-	always_comb begin
-		for ( i = 0; i < OUT; i = i + 1 ) begin
-			out_l[i] = ( i == in ) ? ENABLE : DISABLE;
-		end
-	end
+//***** decode
+int i;
+always_comb begin
+  for ( i = 0; i < OUT; i = i + 1 ) begin
+    out_l[i] = ( i == in ) ? ENABLE : DISABLE;
+  end
+end
 
 endmodule

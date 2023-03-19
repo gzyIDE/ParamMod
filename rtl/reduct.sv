@@ -7,12 +7,12 @@
 * http://opensource.org/licenses/mit-license.php
 */
 
-`include "stddef.vh"
+`include "parammod_stddef.vh"
 
 // Parameterized Data Reduction Module 
 module reduct #(
 	parameter OPE = "or",		// Supported Operations : "and", "or", "xor"
-	parameter NOT = `Disable,	// Bit Flip             : "nand", "nor", "xnor"
+	parameter NOT = `DISABLE,	// Bit Flip             : "nand", "nor", "xnor"
 	parameter IN = 4,			// Number of inputs
 	parameter DATA = 16			// Size of input data
 )(

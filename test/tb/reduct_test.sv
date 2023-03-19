@@ -7,18 +7,18 @@
 * http://opensource.org/licenses/mit-license.php
 */
 
-`include "stddef.vh"
+`include "parammod_stddef.vh"
 `include "sim.vh"
 
 module reduct_test;
 	parameter STEP = 10;
-	parameter OPE = "xor";	// Supported Operations ( "and", "or", "xor" )
-	parameter NOT = `Disable;
+	parameter OPE = "or";	// Supported Operations ( "and", "or", "xor" )
+	parameter NOT = `DISABLE;
 	parameter IN = 4;
 	parameter DATA = 16;
 
 	reg [IN-1:0][DATA-1:0]	in;
-	wire [DATA-1:0]			out;
+	wire [DATA-1:0]			    out;
 
 	reduct #(
 		.OPE	( OPE ),

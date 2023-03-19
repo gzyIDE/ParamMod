@@ -1,4 +1,4 @@
-`include "stddef.vh"
+`include "parammod_stddef.vh"
 
 //`define BITMAP
 
@@ -10,14 +10,14 @@ module selector_test;
 	parameter STEP = 10;
 	parameter DATA = 32;
 	parameter IN = 4;
-	parameter ACT = `High;
-	parameter MSB = `Enable;
+	parameter ACT = `HIGH;
+	parameter MSB = `ENABLE;
 `ifdef BITMAP
 	parameter SEL_WIDTH = IN;
-	parameter BIT_MAP = `Enable;
+	parameter BIT_MAP = `ENABLE;
 `else
 	parameter SEL_WIDTH = $clog2(IN);
-	parameter BIT_MAP = `Disable;
+	parameter BIT_MAP = `DISABLE;
 `endif
 
 	reg [DATA*IN-1:0]		in;
