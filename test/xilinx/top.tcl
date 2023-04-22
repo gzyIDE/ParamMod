@@ -1,1 +1,1 @@
-set TOP lsfr
+set TOP pri_enc

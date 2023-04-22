@@ -68,8 +68,8 @@
 `define ATT_B_GRAY			47
 
 /* Clock generation */
-`define DefClk				always #(STEP/2) begin \
-								clk <= ~clk; \
-							end
+`define DefClk	always #(STEP/2) begin \
+								  clk <= ~clk; \
+							  end
 
 `endif //_SIM_H_INCLUDED_

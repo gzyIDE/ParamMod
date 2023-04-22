@@ -13,6 +13,7 @@
 module pri_enc #(
   parameter IN  = 32,
   parameter ACT = `HIGH,
+  parameter MSB = `ENABLE,
   // constant
   parameter OUT = $clog2(IN)
 )(
@@ -29,6 +30,21 @@ localparam DISABLE = ACT ? `DISABLE : `DISABLE_;
 //***** assign output
 assign valid = ACT ? |in      ? ENABLE : DISABLE
              :       !( &in ) ? ENABLE : DISABLE;
+
+
+//***** MSB/LSB select
+wire [IN-1:0]   sel_in;
+selector #(
+  .BIT_MAP  ( `ENABLE ),
+  .DATA     ( 1 ),
+  .IN       ( IN ),
+  .ACT      ( ACT ),
+  .MSB      ( MSB )
+) selector (
+  .in       ( `ZERO(IN) ), // dummy
+  .sel      ( in ),
+  .pos      ( sel_in )
+);
 
 
 //***** Generate Mask (Output Constant)
@@ -71,8 +87,8 @@ generate
         //assign out_wor = 
         assign out_wor[gj] =
           ACT 
-            ? !( |( mask & in ) ) && in[gj]
-            : ( &( mask | in ) ) && !in[gj];
+            ? !( |( mask & sel_in ) ) && sel_in[gj]
+            : ( &( mask | sel_in ) ) && !sel_in[gj];
       end else begin
         assign out_wor[gj] = `LOW;
       end

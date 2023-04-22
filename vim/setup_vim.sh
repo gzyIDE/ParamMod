@@ -107,13 +107,13 @@ cat ${vimdir}/${src_option} >> ${vimdir}/${src_setup}
 echo "Creating include/source file options to each source directory"
 foreach srcdir (`eval "$find_src -exec dirname {} \;" | sort | uniq`)
 	if ( $setup_include =~ 1 ) then
-		cp -f ${vimdir}/${include_setup} ${top}/${srcdir}/${vim_setup_dir}
+		\cp -f ${vimdir}/${include_setup} ${top}/${srcdir}/${vim_setup_dir}
 	else
 		rm -f ${top}/${srcdir}/${vim_setup_dir}/${include_setup}
 	endif
 
 	if ( $setup_source =~ 1 ) then
-		cp -f ${vimdir}/${src_setup} ${top}/${srcdir}/${vim_setup_dir}
+		\cp -f ${vimdir}/${src_setup} ${top}/${srcdir}/${vim_setup_dir}
 	else
 		rm -f ${top}/${srcdir}/${vim_setup_dir}/${src_setup}
 	endif

@@ -3,6 +3,7 @@ test/xmverilog.*
 test/xcelium.d/
 test/waves.shm/
 test/.simvision
+tags
 
 # ignore vim setup files
 *.vim-verilog/

@@ -1,6 +1,6 @@
 let g:srcdir = ''
-let g:srcdir = g:srcdir . ' -y /home/gizaneko/proj/ParamMod/./rtl'
-let g:srcdir = g:srcdir . ' -y /home/gizaneko/proj/ParamMod/./test'
+let g:srcdir = g:srcdir . ' -y /home/primarina/proj/ParamMod/./rtl'
+let g:srcdir = g:srcdir . ' -y /home/primarina/proj/ParamMod/./test/tb'
 
 " append compiler option
 if !exists('g:syntastic_verilog_compiler_options')
