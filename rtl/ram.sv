@@ -113,12 +113,6 @@ end
 
 //***** memory initialize
 initial begin
-  // initialize memory at reset negated
-`ifdef PosedgeReset
-  @( negedge reset );
-`else
-  @( posedge reset );
-`endif
   if ( MEM_FILE != "none" ) begin
     $readmemh(MEM_FILE, ram_reg);
   end
