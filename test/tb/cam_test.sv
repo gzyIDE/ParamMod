@@ -7,8 +7,7 @@
 * http://opensource.org/licenses/mit-license.php
 */
 
-`include "stddef.vh"
-`include "reset_config.vh"
+`include "parammod_stddef.vh"
 `include "sim.vh"
 
 `timescale 1ns/10ps
@@ -26,13 +25,13 @@ module cam_test;
 	reg							reset;
 
 	/* write */
-	reg [WRITE-1:0]				we_;
+	reg [WRITE-1:0]				we;
 	reg [WRITE-1:0][DATA-1:0]	wm;
 	reg [WRITE-1:0][DATA-1:0]	wd;
 	reg [WRITE-1:0][ADDR-1:0]	waddr;
 
 	/* read */
-	reg [READ-1:0]				re_;
+	reg [READ-1:0]				re;
 	reg [READ-1:0][DATA-1:0]	rm;
 	reg [READ-1:0][DATA-1:0]	rd;
 	wire [READ-1:0]				match;
@@ -65,17 +64,17 @@ module cam_test;
 	/***** simulation body *****/
 	integer i;
 	initial begin
-		clk <= `Low;
-		reset <= `ResetEnable;
-		we_ <= {WRITE{`Disable_}};
-		wm <= {DATA*WRITE{`Disable}};
+		clk <= `LOW;
+		reset <= `ENABLE;
+		we <= {WRITE{`DISABLE}};
+		wm <= {DATA*WRITE{`DISABLE}};
 		wd <= {DATA*WRITE{1'b0}};
 		waddr <= {ADDR*WRITE{1'b0}};
-		re_ <= {READ{`Disable_}};
-		rm <= {DATA*READ{`Disable}};
+		re <= {READ{`DISABLE}};
+		rm <= {DATA*READ{`DISABLE}};
 		rd <= {DATA*READ{1'b0}};
 		#(STEP);
-		reset <= `ResetDisable;
+		reset <= `DISABLE;
 
 
 		/***** read/write check *****/

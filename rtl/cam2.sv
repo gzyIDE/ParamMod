@@ -1,7 +1,7 @@
 /*
 * <cam2.sv>
 * 
-* Copyright (c) 2020-2021 Yosuke Ide <yosuke.ide@keio.jp>
+* Copyright (c) 2020-2023 Yosuke Ide <gizaneko@outlook.jp>
 * 
 * This software is released under the MIT License.
 * http://opensource.org/licenses/mit-license.php

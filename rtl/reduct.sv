@@ -1,7 +1,7 @@
 /*
 * <reduct.sv>
 * 
-* Copyright (c) 2021 Yosuke Ide <yosuke.ide@keio.jp>
+* Copyright (c) 2021-2023 Yosuke Ide <gizaneko@outlook.jp>
 * 
 * This software is released under the MIT License.
 * http://opensource.org/licenses/mit-license.php

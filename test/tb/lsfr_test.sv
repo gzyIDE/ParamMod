@@ -7,7 +7,7 @@
 * http://opensource.org/licenses/mit-license.php
 */
 
-`include "stddef.vh"
+`include "parammod_stddef.vh"
 `include "sim.vh"
 
 module lsfr_test;
@@ -41,10 +41,10 @@ module lsfr_test;
 	//***** test body
 	int i;
 	initial begin : test_body
-		clk = `Low;
-		reset = `ResetEnable;
+		clk = `LOW;
+		reset = `ENABLE;
 		#(STEP);
-		reset = `ResetDisable;
+		reset = `DISABLE;
 
 		out_stat[0] = 1;
 		for ( i = 0; i < PATTERNS; i = i + 1 ) begin

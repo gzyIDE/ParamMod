@@ -83,6 +83,8 @@ switch ( $TOP_MODULE )
 		else
 			set RTL_FILE = ( \
 				${RTLDIR}/${TOP_MODULE}.sv \
+				${RTLDIR}/selector.sv \
+        ${RTLDIR}/reduct.sv \
 			)
 		endif
 	breaksw

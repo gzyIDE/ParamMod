@@ -7,41 +7,40 @@
 * http://opensource.org/licenses/mit-license.php
 */
 
-`include "stddef.vh"
-`include "reset_config.vh"
+`include "parammod_stddef.vh"
 
 module ring_buf_test;
 	parameter STEP = 10;
 	parameter DATA = 32;
-	parameter DEPTH = 24;
+	parameter DEPTH = 20;
 	parameter READ = 4;
 	parameter WRITE= 4;
-	parameter ACT = `High;
+	parameter ACT = `HIGH;
 	localparam RNUM = $clog2(READ) + 1;
 	localparam WNUM = $clog2(WRITE) + 1;
-	localparam ENABLE = ACT ? `Enable : `Enable_;
-	localparam DISABLE = ACT ? `Disable : `Disable_;
+	localparam ENABLE = ACT ? `ENABLE : `ENABLE_;
+	localparam DISABLE = ACT ? `DISABLE : `DISABLE_;
 
-	reg							clk;
-	reg							reset;
-	reg							flush_;
-	reg [WRITE-1:0]				we;
+	reg							          clk;
+	reg							          reset;
+	reg							          flush;
+	reg [WRITE-1:0]				    we;
 	reg [WRITE-1:0][DATA-1:0]	wd;
-	reg [READ-1:0]				re;
+	reg [READ-1:0]				    re;
 	wire [READ-1:0][DATA-1:0]	rd;
-	wire [READ-1:0]				rv;
-	wire						busy;
+	wire [READ-1:0]				    rv;
+	wire						          busy;
 
 	ring_buf #(
 		.DATA		( DATA ),
-		.DEPTH		( DEPTH ),
+		.DEPTH	( DEPTH ),
 		.READ		( READ ),
-		.WRITE		( WRITE ),
+		.WRITE	( WRITE ),
 		.ACT		( ACT )
 	) ring (
 		.clk		( clk ),
-		.reset		( reset ),
-		.flush_		( flush_ ),
+		.reset	( reset ),
+		.flush 	( flush ),
 		.we			( we ),
 		.wd			( wd ),
 		.re			( re ),
@@ -92,14 +91,14 @@ module ring_buf_test;
 	end
 
 	initial begin
-		clk <= `Low;
-		reset <= `ResetEnable;
-		flush_ <= `Disable_;
+		clk <= `LOW;
+		reset <= `ENABLE;
+		flush <= `DISABLE;
 		we <= {WRITE{DISABLE}};
 		wd <= {WRITE*DATA{1'b0}};
 		re <= {READ{DISABLE}};
 		#(STEP);
-		reset <= `ResetDisable;
+		reset <= `DISABLE;
 		#(STEP);
 		write_n(32'h1, 2);
 		#(STEP*2);
