@@ -82,7 +82,7 @@ generate
       foreach ( rdata[i] )
         rdata[i] <= reset   ? {DATA{1'b0}}
                   : ren[i]  ? ram_reg[addr[i]]
-                  :           {DATA{1'b0}};
+                  :           rdata[i];
       end
   end else begin
     always_comb begin
