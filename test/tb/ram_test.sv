@@ -11,33 +11,34 @@
 `include "sim.vh"
 
 module ram_test;
-  parameter STEP  = 10;
-  parameter DATA  = 32;
-  parameter DEPTH = 4;
-  parameter PORT  = 2;
-  parameter bit OUTREG = `DISABLE;
-  parameter ADDR = $clog2(DEPTH);
+  parameter STEP    = 10;
+  parameter DATA    = 32;
+  parameter BYTE    = 8;
+  parameter DEPTH   = 4;
+  parameter PORT    = 2;
+  parameter bit OUTREG = `ENABLE;
+  parameter ADDR    = $clog2(DEPTH);
+  parameter BYTESEL = DATA/BYTE;
 
-  reg                       clk;
-  reg                       reset;
-  reg [PORT-1:0]            en;
-  reg [PORT-1:0]            rw_;
-  reg [PORT-1:0][ADDR-1:0]  addr;
-  reg [PORT-1:0][DATA-1:0]  wdata;
-  wire [PORT-1:0][DATA-1:0] rdata;
+  reg                         clk;
+  reg [PORT-1:0][BYTESEL-1:0] en;
+  reg [PORT-1:0]              rw_;
+  reg [PORT-1:0][ADDR-1:0]    addr;
+  reg [PORT-1:0][DATA-1:0]    wdata;
+  wire [PORT-1:0][DATA-1:0]   rdata;
 
 
 
   //***** dut
   ram #(
     .DATA   ( DATA ),
+    .BYTE   ( BYTE ),
     .DEPTH  ( DEPTH ),
     .PORT   ( PORT ),
     .OUTREG ( OUTREG )
   ) ram (
     .*
   );
-
 
 
 
@@ -76,18 +77,14 @@ module ram_test;
   //***** test body
   initial begin
     clk = `LOW;
-    reset = `ENABLE;
     en    = {PORT{`DISABLE}};
     rw_   = {PORT{`READ}};
     addr  = 0;
     wdata = 0;
 
     #(STEP);
-    reset = `DISABLE;
-
-    #(STEP);
     // write "deadbeef" to ram[0] from port0
-    en[0]    = `ENABLE;
+    en[0]    = {BYTESEL{`ENABLE}};
     rw_[0]   = `WRITE;
     addr[0]  = 0;
     wdata[0] = 'hdaedbeef;
@@ -97,9 +94,43 @@ module ram_test;
 
     #(STEP);
     // read ram[0] from port1
-    en[1]   = `ENABLE;
+    en[1]   = {BYTESEL{`ENABLE}};
     rw_[1]  = `READ;
-    addr[0] = 0;
+    addr[1] = 0;
+    #(STEP);
+    en[1]   = {BYTESEL{`DISABLE}};
+
+    // Byte Write
+    // write "deadbeef" to ram[0] from port0
+    en[0]    = {`DISABLE, `DISABLE, `DISABLE, `ENABLE};
+    rw_[0]   = `WRITE;
+    addr[0]  = 1;
+    wdata[0] = 'h000000aa;
+    #(STEP);
+    en[0]    = {`DISABLE, `DISABLE, `ENABLE, `DISABLE};
+    rw_[0]   = `WRITE;
+    addr[0]  = 1;
+    wdata[0] = 'h0000bb00;
+    #(STEP);
+    en[0]    = {`DISABLE, `ENABLE, `DISABLE, `DISABLE};
+    rw_[0]   = `WRITE;
+    addr[0]  = 1;
+    wdata[0] = 'h00cc0000;
+    #(STEP);
+    en[0]    = {`ENABLE, `DISABLE, `DISABLE, `DISABLE};
+    rw_[0]   = `WRITE;
+    addr[0]  = 1;
+    wdata[0] = 'hdd000000;
+    #(STEP);
+    en[0]    = {4{`DISABLE}};
+
+    #(STEP);
+    // read ram[0] from port1
+    en[1]   = {BYTESEL{`ENABLE}};
+    rw_[1]  = `READ;
+    addr[1] = 1;
+    #(STEP);
+    en[1]   = {BYTESEL{`DISABLE}};
 
     #(STEP);
     en[1]   = `DISABLE;
