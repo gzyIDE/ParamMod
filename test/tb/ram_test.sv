@@ -17,6 +17,7 @@ module ram_test;
   parameter DEPTH   = 4;
   parameter PORT    = 2;
   parameter bit OUTREG = `ENABLE;
+  parameter bit WMODE  = 1;
   parameter ADDR    = $clog2(DEPTH);
   parameter BYTESEL = DATA/BYTE;
 
@@ -35,6 +36,7 @@ module ram_test;
     .BYTE   ( BYTE ),
     .DEPTH  ( DEPTH ),
     .PORT   ( PORT ),
+    .WMODE  ( WMODE ),
     .OUTREG ( OUTREG )
   ) ram (
     .*
@@ -134,6 +136,46 @@ module ram_test;
 
     #(STEP);
     en[1]   = `DISABLE;
+
+    if ( WMODE ) begin
+      en[0]    = {BYTESEL{`ENABLE}};
+      rw_[0]   = `WRITE;
+      addr[0]  = 3;
+      wdata[0] = 32'hdeadbeef;
+      en[1]    = {BYTESEL{`ENABLE}};
+      rw_[1]   = `READ;
+      addr[1]  = 3;
+      #(STEP);
+      if ( rdata[1] == 32'hdeadbeef ) begin
+        `SetCharBold
+        `SetCharGreen
+        $display("Write first check success");
+      end else begin
+        `SetCharBold
+        `SetCharRed
+        $display("Write first check failed");
+      end
+      en       = `ZERO(PORT*BYTESEL);
+      #(STEP * 5);
+      en[0]    = 4'b1010;
+      rw_[0]   = `WRITE;
+      addr[0]  = 3;
+      wdata[0] = 32'h33221100;
+      en[1]    = {BYTESEL{`ENABLE}};
+      rw_[1]   = `READ;
+      addr[1]  = 3;
+      #(STEP);
+      if ( rdata[1] == 32'h33ad11ef ) begin
+        `SetCharBold
+        `SetCharGreen
+        $display("Write first check success");
+      end else begin
+        `SetCharBold
+        `SetCharRed
+        $display("Write first check failed");
+      end
+      en       = `ZERO(PORT*BYTESEL);
+    end
 
     #(STEP*5);
 
