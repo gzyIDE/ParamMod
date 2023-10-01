@@ -27,12 +27,17 @@ module ram #(
   // OUTREG ::
   //    Output register option. +
   //    Output is pipelined by register if OUTREG == `Enable.
+  // WMODE ::
+  //    Write mode on read and write contention. +
+  //    0: Read first +
+  //    1: Write first
   // </asciidoc>
   parameter DATA       = 32,
   parameter BYTE       = DATA,
   parameter DEPTH      = 4,
   parameter PORT       = 1,
   parameter bit OUTREG = `DISABLE,
+  parameter bit WMODE  = 0,
   parameter string MEM_FILE = "none",
   // constant
   parameter BYTESEL    = DATA/BYTE,
@@ -75,15 +80,55 @@ always_comb begin
   end
 end
 
+//*** read to write bypass
+logic [PORT-1:0]                bypass;
+logic [PORT-1:0][BYTESEL-1:0]   bypass_byte;
+logic [PORT-1:0][DATA-1:0]      bypass_rd;
+always_comb begin
+  for (int i = 0; i < PORT; i++ ) begin
+    automatic logic [PORT-1:0]  addr_match;
+    bypass_rd[i]   = `ZERO(DATA);
+    bypass_byte[i] = `ZERO(BYTESEL);
+    for (int j = 0; j < PORT; j++) begin
+      if ( i == j) begin
+        addr_match[j] = `DISABLE;
+      end else begin
+        addr_match[j] = (ren[i] && wen[j]) && (addr[i] == addr[j]);
+
+        if ( addr_match[j] ) begin
+          bypass_rd[i]   = wdata[j];
+          bypass_byte[i] = en[j];
+        end
+      end
+    end
+
+    bypass[i] = |addr_match;
+  end
+end
+
 
 //***** parameter dependent
 generate
   if ( OUTREG ) begin
-    always_ff @( posedge clk ) begin
-      foreach ( rdata[i] )
-        rdata[i] <= ren[i]  ? ram_reg[addr[i]]
-                  :           rdata[i];
+    if ( WMODE == 0 ) begin : RFIRST
+      always_ff @( posedge clk ) begin
+        foreach ( rdata[i] ) begin
+          rdata[i] <= ren[i]  ? ram_reg[addr[i]]
+                    :           rdata[i];
+        end
       end
+    end else begin : WFIRST
+      always_ff @( posedge clk ) begin
+        foreach ( rdata[i] ) begin
+          for (int j = 0; j < BYTESEL; j++ ) begin
+            rdata[i][`RANGE(j,BYTE)] 
+              <= ren[i] &&  bypass_byte[i][j] ? bypass_rd[i][`RANGE(j,BYTE)]
+               : ren[i]                       ? ram_reg[addr[i]][`RANGE(j,BYTE)]
+               :                                rdata[i][`RANGE(j,BYTE)];
+          end
+        end
+      end
+    end
   end else begin
     always_comb begin
       foreach ( rdata[i] ) begin
@@ -93,6 +138,8 @@ generate
     end
   end
 endgenerate
+
+
 
 
 //***** sequential logics
