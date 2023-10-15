@@ -16,6 +16,7 @@
 
 module bin_dec_test;
   parameter STEP = 10;
+  parameter MODE = 0;
   parameter IN   = 3;
   parameter OUT  = 1 << IN;
   parameter ACT  = `HIGH;
@@ -27,12 +28,13 @@ module bin_dec_test;
   bin_dec bin_dec (
 `else
   bin_dec #(
+    .MODE  ( MODE ),
     .IN    ( IN ),
-    .ACT  ( ACT )
+    .ACT   ( ACT )
   ) bin_dec (
 `endif
     .in    ( in ),
-    .out  ( out )
+    .out   ( out )
   );
 
   //***** Simulation Body

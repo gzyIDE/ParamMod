@@ -11,8 +11,9 @@
 
 // Binary Decoder
 module bin_dec #(
-  parameter IN  = 4,
-  parameter ACT = `HIGH,
+  parameter MODE = 0, // 0: one-hot, 1: set trailing bits
+  parameter IN   = 4,
+  parameter ACT  = `HIGH,
   // constant
   parameter OUT = 1 << IN
 )(
@@ -35,10 +36,20 @@ assign out = out_l;
 
 //***** decode
 int i;
-always_comb begin
-  for ( i = 0; i < OUT; i = i + 1 ) begin
-    out_l[i] = ( i == in ) ? ENABLE : DISABLE;
+generate
+if ( MODE == 0 ) begin
+  always_comb begin
+    for ( i = 0; i < OUT; i = i + 1 ) begin
+      out_l[i] = ( i == in ) ? ENABLE : DISABLE;
+    end
+  end
+end else begin
+  always_comb begin
+    for ( i = 0; i < OUT; i = i + 1 ) begin
+      out_l[i] = ( i <= in ) ? ENABLE : DISABLE;
+    end
   end
 end
+endgenerate
 
 endmodule
