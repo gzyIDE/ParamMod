@@ -1,4 +1,6 @@
-#SystemVerilog vim Environment
+# SystemVerilog vim Environment
+## File Descriptions
+
 ## vim plug-in manager
 
 ## Syntax Checking with syntastic
@@ -10,7 +12,7 @@ In order to add systemverilog filetype to syntastic, see the following guide.
 
 [syntastic]: https://github.com/vim-syntastic/syntastic
 
-###Add systemverilog checker to syntastic
+### Add systemverilog checker to syntastic
 1. Copy "systemverilog" directory to syntastic/syntax_checkers under your vim plug-in installation directory
 2. Add following member to "s:\_DEFAULT_CHECKERS" in syntastic/plugin/syntastic/registry.vim
 ```
@@ -86,3 +88,56 @@ au Filetype systemverilog let b:match_words =
             \'\<generate\>:\<endgenerate\>,'.
             \ '`ifdef\|`ifndef:`else\|`elsif:`endif'
 ```
+
+## Include files and defines
+"setup_vim.sh" automatically detects include files and verilog/systemverilog 
+source files and create vim scripts for syntax checking.  
+
+For example, running setup_vim.sh in this repository generates following inc.vim and src.vim.
+These vim scripts are placed under .vim-verilog directory created in each directory 
+that contains source files.  
+"SvCheck" command, which I introduced in the above example, loads these vim scripts
+to allow the verilator to resolve dependencies.
+```
+" in inc.vim
+let g:incdir = ''
+let g:incdir = g:incdir . ' +incdir+/home/gizaneko/proj/SysvDevEnv/./include'
+let g:incdir = g:incdir . ' +incdir+/home/gizaneko/proj/SysvDevEnv/./test/include'
+
+" append compiler option
+if !exists('g:syntastic_verilog_compiler_options')
+	let g:syntastic_verilog_compiler_options = '-Wall '
+endif
+let g:syntastic_verilog_compiler_options = 
+	\g:syntastic_verilog_compiler_options . g:incdir
+
+if !exists('g:syntastic_systemverilog_compiler_options')
+	let g:syntastic_systemverilog_compiler_options = '-sv -Wall '
+endif
+let g:syntastic_systemverilog_compiler_options = 
+	\g:syntastic_systemverilog_compiler_options . g:incdir
+```
+```
+" in src.vim
+let g:srcdir = ''
+let g:srcdir = g:srcdir . ' -y /home/gizaneko/proj/SysvDevEnv/./rtl'
+let g:srcdir = g:srcdir . ' -y /home/gizaneko/proj/SysvDevEnv/./test/tb'
+
+" append compiler option
+if !exists('g:syntastic_verilog_compiler_options')
+	let g:syntastic_verilog_compiler_options = '-Wall '
+endif
+let g:syntastic_verilog_compiler_options = 
+	\g:syntastic_verilog_compiler_options . g:srcdir
+
+if !exists('g:syntastic_systemverilog_compiler_options')
+	let g:syntastic_systemverilog_compiler_options = '-sv -Wall '
+endif
+let g:syntastic_systemverilog_compiler_options = 
+	\g:syntastic_systemverilog_compiler_options . g:srcdir
+```
+In addition to inc.vim and src.vim, respective setup scripts are
+generated in the .vim-verilog directory.
+These files allow programmer to manually set defines, additional dependency 
+and compiler options.  
+Setup file corresponding to current file is also loaded by "SvCheck" command.

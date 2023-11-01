@@ -19,5 +19,7 @@
 #set DEFAULT_DESIGN = "gather"
 #set DEFAULT_DESIGN = "scatter"
 #set DEFAULT_DESIGN = "block_shift"
-set DEFAULT_DESIGN = "ram"
+#set DEFAULT_DESIGN = "ram"
 #set DEFAULT_DESIGN = "lsfr"
+
+set DEFAULT_DESIGN = "gray_cnt"

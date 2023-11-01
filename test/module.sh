@@ -284,6 +284,22 @@ switch ( $TOP_MODULE )
 		endif
 	breaksw
 
+	case "gray_cnt" :
+		set TEST_FILE = ${TBDIR}/${TOP_MODULE}_test.sv
+		if ( $GATE =~ 1 ) then
+			set RTL_FILE = ( \
+				$RTL_FILE \
+				${GATEDIR}/${TOP_MODULE}/${TOP_MODULE}.mapped.v \
+			)
+		else
+			set RTL_FILE = ( \
+				${RTLDIR}/${TOP_MODULE}.sv \
+				${RTLDIR}/bin_gray.sv \
+				${RTLDIR}/gray_bin.sv \
+			)
+		endif
+	breaksw
+
 	default : 
 		# Error
 		echo "Invalid Module"
