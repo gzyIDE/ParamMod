@@ -1,19 +1,20 @@
 /*
 * <fifo.sv>
+* N-in M-out First-in First-out Buffer
 * 
-* Copyright (c) 2020-2023 Yosuke Ide <gizaneko@outlook.jp>
+* Copyright (c) 2023 Yosuke Ide <gizaneko@outlook.jp>
 * 
 * This software is released under the MIT License.
 * http://opensource.org/licenses/mit-license.php
 */
 
 `include "parammod_stddef.vh"
+`default_nettype none
 
 // First in First out queue
 module fifo #(
   parameter DATA    = 64,
   parameter DEPTH   = 32,
-  parameter BUF_EXT = `DISABLE,
   parameter READ    = 4,
   parameter WRITE   = 4,
   parameter ACT     = `LOW  // polarity of re, we
@@ -30,32 +31,24 @@ module fifo #(
 );
 
 //***** internal parameters
-localparam INT_DEPTH = BUF_EXT ? ( DEPTH + WRITE ) : DEPTH;
-localparam INT_READ  = READ + 1;
-localparam INT_WRITE = WRITE + 1;
-localparam ADDR      = $clog2(INT_DEPTH);
+localparam READ_EXT  = READ + 1;
 localparam WNUM      = $clog2(WRITE) + 1;
 localparam RNUM      = $clog2(READ) + 1;
-localparam WIDX      = $clog2(INT_READ+WRITE);
-localparam AL_W      = 1 << $clog2(INT_READ+WRITE);
-localparam AL_R      = 1 << $clog2(INT_READ);
-localparam DIFF_W    = AL_W - (INT_READ+WRITE);
-localparam DIFF_R    = AL_R - INT_READ;
 
 //***** Internal registers
-reg [INT_DEPTH-1:0][DATA-1:0] data;
-reg [INT_DEPTH-1:0]           valid;
+reg [DEPTH-1:0][DATA-1:0] data;
+reg [DEPTH-1:0]           valid;
 
 //***** internal wires
-wire [INT_DEPTH-1:0][DATA-1:0] next_data;
-wire [WNUM-1:0]                wnum;
-wire [RNUM-1:0]                rnum;
-wire [INT_DEPTH-1:0]           next_valid;
+wire [DEPTH-1:0][DATA-1:0] next_data;
+wire [WNUM-1:0]            wnum;
+wire [RNUM-1:0]            rnum;
+wire [DEPTH-1:0]           next_valid;
 
 
 
 //***** input/output
-assign busy = valid[INT_DEPTH-WRITE];
+assign busy = valid[DEPTH-WRITE];
 assign v    = valid[READ-1:0];
 generate
   genvar gi;
@@ -88,19 +81,32 @@ cnt_bits #(
 
 //***** data and valid generation
 generate
-  genvar gk, gl, gm;
-  for ( gk = 0; gk < INT_DEPTH; gk = gk + 1 ) begin : LP_data
-    wire [INT_READ-1:0][DATA-1:0] rcand;          // candidate for read
-    wire [INT_READ-1:0]           rcand_valid;    // valid for read
-    wire [INT_READ+WRITE-1:0]     wcand_valid;    // valid for write
-    wire [DATA-1:0]               next_data_each;
-    assign next_data[gk] = next_data_each;
-    assign {next_valid[gk], next_data_each}
-      = func_data(gk, wd, rcand, rcand_valid, wcand_valid, wnum, rnum);
+  for ( genvar gk = 0; gk < DEPTH; gk = gk + 1 ) begin : LP_data
+    wire [READ_EXT-1:0][DATA-1:0] rcand;          // candidate for read
+    wire [READ_EXT-1:0]           rcand_valid;    // valid for read
+    wire [READ_EXT+WRITE-1:0]     wcand_valid;    // valid for write
+    //wire [DATA-1:0]               next_data_each;
+    //assign next_data[gk] = next_data_each;
+    //assign {next_valid[gk], next_data_each}
+    //  = func_data(gk, wd, rcand, rcand_valid, wcand_valid, wnum, rnum);
+    fifo_sel #(
+      .DATA         ( DATA ),
+      .WRITE        ( WRITE ),
+      .READ         ( READ )
+    ) fifo_sel0 (
+      .wd           ( wd ),
+      .data         ( rcand ),
+      .valid_r      ( rcand_valid ),
+      .valid_w      ( wcand_valid ),
+      .wnum         ( wnum ),
+      .rnum         ( rnum ),
+      .next_valido  ( next_valid[gk] ),
+      .next_datao   ( next_data[gk] )
+    );
 
     //*** Shift Entry on read
-    for ( gl = 0; gl < INT_READ; gl = gl + 1 ) begin : LP_rcand
-      if ( gk + gl >= INT_DEPTH ) begin : IF_over_range
+    for ( genvar gl = 0; gl < READ_EXT; gl = gl + 1 ) begin : LP_rcand
+      if ( gk + gl >= DEPTH ) begin : IF_over_range
         assign rcand[gl]       = {DATA{1'b0}};
         assign rcand_valid[gl] = `DISABLE;
       end else begin : IF_in_range
@@ -110,78 +116,104 @@ generate
     end
 
     //*** Append Entry on write
-    for ( gm = -WRITE; gm < INT_READ; gm = gm + 1 ) begin : LP_wcand
-      if ( gm + gk < 0 ) begin : IF_under_range
-        assign wcand_valid[WRITE+gm] = `ENABLE;
-      end else if ( gm + gk >= INT_DEPTH ) begin : IF_over_range
-        assign wcand_valid[WRITE+gm] = `DISABLE;
+    for ( genvar gm = 0; gm < READ_EXT + WRITE; gm = gm + 1 ) begin : LP_wcand
+      if ( gm + gk < WRITE ) begin : IF_under_range
+        assign wcand_valid[gm] = `ENABLE;
+      end else if ( gm + gk >= DEPTH + WRITE ) begin : IF_over_range
+        assign wcand_valid[gm] = `DISABLE;
       end else begin : IF_in_range
-        assign wcand_valid[WRITE+gm] = valid[gm+gk];
+        assign wcand_valid[gm] = valid[gm-WRITE+gk];
       end
     end
+    //for ( gm = -WRITE; gm < READ_EXT; gm = gm + 1 ) begin : LP_wcand
+    //  if ( gm + gk < 0 ) begin : IF_under_range
+    //    assign wcand_valid[WRITE+gm] = `ENABLE;
+    //  end else if ( gm + gk >= DEPTH ) begin : IF_over_range
+    //    assign wcand_valid[WRITE+gm] = `DISABLE;
+    //  end else begin : IF_in_range
+    //    assign wcand_valid[WRITE+gm] = valid[gm+gk];
+    //  end
+    //end
   end
 endgenerate
-
-//*** data selection logic
-localparam FUNC_DATA = 1 + DATA;
-function [FUNC_DATA-1:0] func_data;
-  input [ADDR-1:0]               idx;         // index
-  input [WRITE-1:0][DATA-1:0]    wd;          // write
-  input [INT_READ-1:0][DATA-1:0] data;
-  input [INT_READ-1:0]           valid_r;     // readable entries
-  input [(WRITE+INT_READ)-1:0]   valid_w;     // writable entries
-  input [WNUM-1:0]               wnum;
-  input [RNUM-1:0]               rnum;
-  reg [AL_R-1:0]                 valid_r_cp;  // complemented to 2^n
-  reg [AL_W-1:0]                 valid_w_cp;  // complemented to 2^n
-  reg [WRITE-1:0]                valid_edge;
-  reg                            next_valid;
-  reg [DATA-1:0]                 next_data;
-  reg [WIDX-1:0]                 widx;
-  reg [WIDX-1:0]                 widx_cur [WRITE-1:0];
-  reg [WIDX-1:0]                 widx_prev [WRITE-1:0];
-  int i;
-  begin
-    // initialize default value
-    valid_r_cp = {{DIFF_R{1'b0}}, valid_r};
-    valid_w_cp = {{DIFF_W{1'b0}}, valid_w};
-    widx       = WRITE + rnum;
-    next_data  = {DATA{1'b0}};
-    next_valid = `DISABLE;
-    for ( i = 0; i < WRITE; i = i + 1 ) begin
-      widx_prev[i] = widx - i - 1;
-      widx_cur[i]  = widx - i;
-    end
-
-    if ( valid_r_cp[rnum] ) begin
-      next_valid = `ENABLE;
-      for ( i = 0; i < INT_READ; i = i + 1 ) begin
-        if ( i == rnum ) begin
-          next_data = data[i];
-        end
-      end
-    end else begin
-      for ( i = 0; i < WRITE; i = i + 1 ) begin
-        valid_edge[i]
-          = valid_w_cp[widx_prev[i]] ^ valid_w_cp[widx_cur[i]];
-        if (valid_edge[i] && (i < wnum)) begin
-          next_data  = wd[i];
-          next_valid = `ENABLE;
-        end
-      end
-    end
-    func_data = {next_valid, next_data};
-  end
-endfunction
-
 
 
 //***** sequantial logics
 always_ff @( posedge clk ) begin
-  valid <= reset || flush ? {INT_DEPTH{1'b0}}
+  valid <= reset || flush ? {DEPTH{1'b0}}
          :                  next_valid;
-  data  <= reset || flush ? {INT_DEPTH*DATA{1'b0}}
+  data  <= reset || flush ? {DEPTH*DATA{1'b0}}
          :                  next_data;
 end
 
 endmodule
+
+module fifo_sel #(
+  parameter DATA = 64,
+  parameter WRITE = 4,
+  parameter READ = 4,
+  // constant
+  parameter READ_EXT = READ + 1,
+  parameter RNUM = $clog2(READ) + 1,
+  parameter WNUM = $clog2(WRITE) + 1,
+  parameter AL_W = 1 << $clog2(READ_EXT+WRITE),
+  parameter AL_R = 1 << $clog2(READ_EXT),
+  parameter WIDX = $clog2(READ_EXT+WRITE)
+)(
+  input wire [WRITE-1:0][DATA-1:0]    wd,          // write
+  input wire [READ_EXT-1:0][DATA-1:0] data,
+  input wire [READ_EXT-1:0]           valid_r,     // readable entries
+  input wire [(WRITE+READ_EXT)-1:0]   valid_w,     // writable entries
+  input wire [WNUM-1:0]               wnum,
+  input wire [RNUM-1:0]               rnum,
+  output wire                         next_valido,
+  output wire [DATA-1:0]              next_datao
+);
+
+localparam DIFF_W = AL_W - (READ_EXT+WRITE);
+localparam DIFF_R = AL_R - READ_EXT;
+
+logic [AL_R-1:0]  valid_r_cp;  // extended to 2^n
+logic [AL_W-1:0]  valid_w_cp;  // extended to 2^n
+logic             next_valid;
+logic [DATA-1:0]  next_data;
+logic [WIDX-1:0]  widx;
+
+always_comb begin
+  valid_r_cp = {{DIFF_R{1'b0}}, valid_r};
+  valid_w_cp = {{DIFF_W{1'b0}}, valid_w};
+  widx       = WRITE + rnum;
+  next_data  = {DATA{1'b0}};
+  next_valid = `DISABLE;
+
+  if ( valid_r_cp[rnum] ) begin
+    next_valid = `ENABLE;
+    for (int i = 0; i < READ_EXT; i = i + 1 ) begin
+      if ( i == rnum ) begin
+        next_data = data[i];
+      end
+    end
+  end else begin
+    for (int i = 0; i < WRITE; i = i + 1 ) begin
+      automatic logic [WIDX-1:0]  idx;
+      automatic logic [WIDX-1:0]  widx_prev;
+      automatic logic [WIDX-1:0]  widx_cur;
+      automatic logic             valid_edge;
+      idx         = i[WIDX-1:0];
+      widx_prev   = widx - idx - 'h1;
+      widx_cur    = widx - idx;
+      valid_edge  = valid_w_cp[widx_prev] ^ valid_w_cp[widx_cur];
+      if (valid_edge && (i < wnum)) begin
+        next_data  = wd[i];
+        next_valid = `ENABLE;
+      end
+    end
+  end
+end
+
+assign next_valido = next_valid;
+assign next_datao  = next_data;
+
+endmodule
+
+`default_nettype wire
