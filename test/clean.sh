@@ -62,6 +62,7 @@ else if ( $SIM_TOOL =~ "xilinx_sim" ) then
 	rm -f webtalk*.log >& /dev/null
 	rm -f xsim*.jou >& /dev/null
 	rm -f xsim*.log >& /dev/null
+  rm -f *.log 
 	rm -f xelab.log
 	rm -f xelab.pb
 	rm -f xvlog.log
@@ -73,8 +74,8 @@ else if ( $SIM_TOOL =~ "xilinx_sim" ) then
 	rm -f waves.wdb
 
 	echo "Removing Vivado-related log files"
-	rm -f vivado*.jou >& /dev/null
-	rm -f vivado*.log >& /dev/null
+	rm -f *.jou >& /dev/null
+	rm -f *.log >& /dev/null
 	#rm -f *.wdb
 
 	pushd xilinx > /dev/null

@@ -23,4 +23,6 @@
 #set DEFAULT_DESIGN = "lsfr"
 
 #set DEFAULT_DESIGN = "gray_cnt"
-set DEFAULT_DESIGN = "oneshot"
+#set DEFAULT_DESIGN = "oneshot"
+
+set DEFAULT_DESIGN = "rr_arbiter"
