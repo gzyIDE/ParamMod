@@ -78,7 +78,7 @@ else if ( $SIM_TOOL =~ "xilinx_sim" ) then
 	#rm -f *.wdb
 
 	pushd xilinx > /dev/null
-	foreach file ( `ls` )
+	foreach file ( `/bin/ls` )
 		if ( -d $file ) then
 			rm -rf $file
 		endif

@@ -15,10 +15,9 @@ module freelist #(
   parameter byte READ   = 4,
   parameter byte WRITE  = 4,
   // impelementation option
-  parameter bit BIT_VEC = `ENABLE,  // bit vector addressing
-  parameter bit OUTREG  = `DISABLE,  // register output
+  parameter bit MODE    = `HIGH,  // 0: index, 1: bit vector addressing
   // constant
-  parameter DATA = BIT_VEC ? DEPTH : $clog2(DEPTH)
+  parameter DATA = MODE ? DEPTH : $clog2(DEPTH)
 )(
   input  wire                       clk,
   input  wire                       reset,
@@ -54,7 +53,7 @@ assign v    = ~v_sel_out_;
 
 generate
   genvar gj;
-  if ( BIT_VEC ) begin : sel_vec
+  if ( MODE ) begin : sel_vec
     //*** DATA = DEPTH
     for ( gj = 0; gj < READ; gj = gj + 1 ) begin : LP_rd
       assign {v_sel_out_[gj], rd[gj]} = rd_sel(gj, r_usage);
@@ -65,7 +64,7 @@ generate
     wire [READ-1:0][DEPTH-1:0]  usage_scl;
     assign usage_scl[0] = r_usage;
     selector #(
-      .BIT_MAP ( `ENABLE ),
+      .MODE    ( `HIGH ),
       .DATA    ( DATA ),
       .IN      ( DEPTH ),
       .ACT     ( `LOW ),
@@ -82,7 +81,7 @@ generate
       assign usage_scl[gj] = usage_scl[gj-1] | ~pos[gj-1];
 
       selector #(
-        .BIT_MAP ( `ENABLE ),
+        .MODE    ( `HIGH ),
         .DATA    ( DATA ),
         .IN      ( DEPTH ),
         .ACT     ( `LOW ),
@@ -163,7 +162,7 @@ function update_usage;
   int i;
   begin
     //*** read/write check
-    if ( BIT_VEC ) begin
+    if ( MODE ) begin
       //* Bit Vector Addressing
       for ( i = 0; i < READ; i = i + 1 ) begin
         rmatch[i] = rd[i][idx] && re[i];

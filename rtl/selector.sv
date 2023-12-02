@@ -10,15 +10,15 @@
 `include "parammod_stddef.vh"
 
 module selector #(
-  parameter bit BIT_MAP = `DISABLE, // 0: index, 1: bit_map
-  parameter int DATA    = 5,        // width of single element
-  parameter int IN      = 64,       // # of input element
-  parameter bit ACT     = `LOW,     // Active High/Low
-  parameter bit MSB     = `DISABLE, // select from Most Sifnificant Elements
+  parameter bit MODE      = `LOW,     // 0: index, 1: bit vector
+  parameter int DATA      = 5,        // width of single element
+  parameter int IN        = 64,       // # of input element
+  parameter bit ACT       = `LOW,     // Active High/Low
+  parameter bit MSB       = `DISABLE, // select from Most Sifnificant Elements
   // constant
   parameter int LOG2_IN   = $clog2(IN),
-  parameter int POS       = BIT_MAP ? IN : 1 << IN,
-  parameter int SEL_WIDTH = BIT_MAP ? IN : LOG2_IN // selector width
+  parameter int POS       = MODE ? IN : 1 << IN,
+  parameter int SEL_WIDTH = MODE ? IN : LOG2_IN // selector width
 ) (
   input wire [IN-1:0][DATA-1:0] in,
   input wire [SEL_WIDTH-1:0]    sel,
@@ -42,7 +42,7 @@ module selector #(
 
   //****** output
   if ( IN == 1 ) begin : IF_thr
-    if ( BIT_MAP ) begin : bitmap
+    if ( MODE ) begin : bitvec
       assign out = ( sel[0] == ENABLE ) ? in[0] : {DATA{1'b0}};
     end else begin : idx
       assign out = ENABLE;
@@ -58,7 +58,7 @@ module selector #(
   //***** output position
   generate
     genvar gk;
-    if ( BIT_MAP ) begin : IF_BIT
+    if ( MODE ) begin : IF_BIT
       if ( MSB ) begin : IF_MSB
         assign pos[IN-1] = sel[IN-1];
         for ( gk = IN-2; gk >= 0; gk = gk - 1 ) begin : LP_pos
@@ -92,7 +92,7 @@ module selector #(
         wire                sel2;
         if ( ACT ) begin : IF_acth
           assign sel_res[gi] = sel1 || sel2;
-          if ( BIT_MAP ) begin : bitmap
+          if ( MODE ) begin : bitvec
             assign sel1 = ( sel[gi*2] == ENABLE );
             assign sel2 = ( sel[gi*2+1] == ENABLE );
           end else begin : idx
@@ -101,7 +101,7 @@ module selector #(
           end
         end else begin : IF_actl
           assign sel_res[gi] = sel1 && sel2;
-          if ( BIT_MAP ) begin : bitmap
+          if ( MODE ) begin : bitvec
             assign sel1 = !( sel[gi*2] == ENABLE );
             assign sel2 = !( sel[gi*2+1] == ENABLE );
           end else begin : idx
@@ -127,11 +127,11 @@ module selector #(
         assign pos1    = gi*2;
         assign res[gi] = {pos1, in[gi*2]};
         if ( ACT ) begin : IF_acth
-          assign sel_res[gi] = BIT_MAP ? (sel[gi*2] == ENABLE)
-                             :           (sel == (gi*2));
+          assign sel_res[gi] = MODE ? (sel[gi*2] == ENABLE)
+                             :        (sel == (gi*2));
         end else begin : IF_actl
-          assign sel_res[gi] = BIT_MAP ? !(sel[gi*2] == ENABLE)
-                             :           !(sel == (gi*2));
+          assign sel_res[gi] = MODE ? !(sel[gi*2] == ENABLE)
+                             :        !(sel == (gi*2));
         end
       end else begin : zero
         assign res[gi]     = {DATA{1'b0}};

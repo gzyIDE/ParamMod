@@ -100,7 +100,7 @@ generate
   for ( gk = 0; gk < OUT; gk = gk + 1 ) begin : LP_sel
     if ( OFFSET ) begin : IF_OFS
       selector #(
-        .BIT_MAP  ( `ENABLE ),
+        .MODE     ( `HIGH ),
         .DATA     ( DATA ),
         .IN       ( IN ),
         .ACT      ( ACT )
@@ -122,7 +122,7 @@ generate
       end
 
       selector #(
-        .BIT_MAP  ( `ENABLE ),
+        .MODE     ( `HIGH ),
         .DATA     ( DATA ),
         .IN       ( IN - gk ),
         .ACT      ( ACT )

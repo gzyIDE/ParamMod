@@ -234,18 +234,17 @@ always_comb begin
 end
 
 //***** data select
-wire [DEPTH-1:0]  dummy_pos;
 selector #(
-  .BIT_MAP  ( `ENABLE ),
-  .DATA    ( DATA ),
-  .IN      ( DEPTH ),
+  .MODE   ( `HIGH ),
+  .DATA   ( DATA ),
+  .IN     ( DEPTH ),
   .ACT    ( `HIGH ),
   .MSB    ( MSB )
 ) selector (
-  .in      ( data ),
+  .in     ( data ),
   .sel    ( sel ),
-  .valid    ( match ),
-  .pos    ( dummy_pos ),
+  .valid  ( match ),
+  .pos    (),
   .out    ( result )
 );
 

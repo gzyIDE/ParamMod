@@ -339,7 +339,7 @@ if ( ${SIM_TOOL} =~ "xilinx_sim" ) then
 	echo "]" >> ${DEFINE_TCL}
 
 	# create vivado projects for debug
-	vivado -mode batch -source ./xilinx/prj.tcl
+	vivado -mode batch -source ./xilinx/prj.tcl -nojournal -log ${TOP_MODULE}.log
 
 
 

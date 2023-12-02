@@ -88,7 +88,7 @@ module scatter #(
       assign out[gj] = match ? sel_res : 0;
 
       selector #(
-        .BIT_MAP  ( `DISABLE ),
+        .MODE     ( `LOW ), // index mode
         .DATA     ( DATA ),
         .IN       ( IN ),
         .ACT      ( ACT )

@@ -35,7 +35,7 @@ assign valid = ACT ? |in      ? ENABLE : DISABLE
 //***** MSB/LSB select
 wire [IN-1:0]   sel_in;
 selector #(
-  .BIT_MAP  ( `ENABLE ),
+  .MODE     ( `HIGH ), // bit vector
   .DATA     ( 1 ),
   .IN       ( IN ),
   .ACT      ( ACT ),

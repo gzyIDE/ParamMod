@@ -10,11 +10,11 @@
 `include "parammod_stddef.vh"
 
 module freelist_test;
-  parameter STEP = 10;
+  parameter STEP  = 10;
   parameter DEPTH = 16;
-  parameter BIT_VEC = `DISABLE;
-  parameter DATA = BIT_VEC ? DEPTH : $clog2(DEPTH);
-  parameter READ = 4;
+  parameter MODE  = `LOW;
+  parameter DATA  = MODE? DEPTH : $clog2(DEPTH);
+  parameter READ  = 4;
   parameter WRITE = 4;
   localparam RNUM = $clog2(READ)+1;
   localparam WNUM = $clog2(WRITE)+1;
@@ -39,7 +39,7 @@ module freelist_test;
     .DATA    ( DATA ),
     .READ    ( READ ),
     .WRITE   ( WRITE ),
-    .BIT_VEC ( BIT_VEC )
+    .MODE    ( MODE )
   ) freelist (
     .clk     ( clk ),
     .reset   ( reset ),
@@ -63,7 +63,7 @@ module freelist_test;
       for ( i = 0; i < rnum; i = i + 1 ) begin
         re[i] = `ENABLE;
       end
-      if ( BIT_VEC ) begin
+      if ( MODE ) begin
         for ( i = 0; i < wnum; i = i + 1 ) begin
           we[i] = `ENABLE;
           wd[i] = 1 << (data + i);

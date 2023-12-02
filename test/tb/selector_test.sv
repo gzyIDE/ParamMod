@@ -1,6 +1,6 @@
 `include "parammod_stddef.vh"
 
-//`define BITMAP
+//`define BITVEC
 
 `ifdef GATE_SIM
  `timescale 1ns/10ps
@@ -12,12 +12,12 @@ module selector_test;
 	parameter IN = 4;
 	parameter ACT = `HIGH;
 	parameter MSB = `ENABLE;
-`ifdef BITMAP
+`ifdef BITVEC
 	parameter SEL_WIDTH = IN;
-	parameter BIT_MAP = `ENABLE;
+	parameter MODE = `HIGH;
 `else
 	parameter SEL_WIDTH = $clog2(IN);
-	parameter BIT_MAP = `DISABLE;
+	parameter MODE = `LOW;
 `endif
 
 	reg [DATA*IN-1:0]		in;
@@ -33,7 +33,7 @@ module selector_test;
 		.DATA		( DATA ),
 		.IN			( IN ),
 		.SEL_WIDTH	( SEL_WIDTH ),
-		.BIT_MAP	( BIT_MAP ),
+		.MODE   ( MODE ),
 		.ACT		( ACT ),
 		.MSB		( MSB )
 	) selector (
@@ -53,7 +53,7 @@ module selector_test;
 		for ( i = 0; i < IN; i = i + 1 ) begin
 			in[DATA*i +: DATA] = i+1;
 		end
-`ifdef BITMAP
+`ifdef BITVEC
 		// one bit
 		sel <= 4'b0001;
 		#(STEP)
