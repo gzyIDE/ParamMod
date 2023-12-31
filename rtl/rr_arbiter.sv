@@ -47,6 +47,7 @@ logic [IDX-1:0]  c_prev_idx;
 always_comb begin
   c_grant_sft = `ZERO(PORT);
   c_req_exist = `DISABLE;
+  c_prev_idx  = `ZERO(IDX);
   for (int i = PORT-1; i >= 0; i--) begin
     if ( c_req_sft[i] ) begin
       c_grant_sft = `ONE(PORT) << i;
