@@ -24,45 +24,50 @@ module rr_arbiter #(
   output wire [PORT-1:0]  granto
 );
 
+localparam PORT_I = 2 ** $clog2(PORT); // Port count is aligned to 2^n
+
 reg [IDX-1:0]   r_prev;
+
+//***** Input width adjust
+wire [PORT_I-1:0] req_i = {{PORT_I-PORT{1'b0}}, req};
 
 //***** Cominational logic
 //*** Request select
-wire [PORT-1:0]   c_req_sft;
+wire [PORT_I-1:0]   c_req_sft;
 shifter #(
   .BIT_VEC  ( `DISABLE ),
   .ROTATE   ( `ENABLE ),
   .TO_RIGHT ( `ENABLE ),  // to right
-  .DATA     ( PORT ),
+  .DATA     ( PORT_I ),
   .SHAMT    ( IDX )
 ) shifter0 (
-  .in       ( req ),
+  .in       ( req_i ),
   .shamt    ( r_prev ),
   .out      ( c_req_sft )
 );
 
-logic [PORT-1:0] c_grant_sft;
+logic [PORT_I-1:0] c_grant_sft;
 logic            c_req_exist;
 logic [IDX-1:0]  c_prev_idx;
 always_comb begin
-  c_grant_sft = `ZERO(PORT);
+  c_grant_sft = `ZERO(PORT_I);
   c_req_exist = `DISABLE;
   c_prev_idx  = `ZERO(IDX);
-  for (int i = PORT-1; i >= 0; i--) begin
+  for (int i = PORT_I-1; i >= 0; i--) begin
     if ( c_req_sft[i] ) begin
-      c_grant_sft = `ONE(PORT) << i;
+      c_grant_sft = `ONE(PORT_I) << i;
       c_req_exist = `ENABLE;
       c_prev_idx  = i[IDX-1:0] + `ONE(IDX) + r_prev;
     end
   end
 end
 
-wire [PORT-1:0] c_grant;
+wire [PORT_I-1:0] c_grant;
 shifter #(
   .BIT_VEC    ( `DISABLE ),
   .ROTATE     ( `ENABLE ),
   .TO_RIGHT   ( `DISABLE ), // to left
-  .DATA       ( PORT ),
+  .DATA       ( PORT_I ),
   .SHAMT      ( IDX )
 ) shifter1 (
   .in         ( c_grant_sft ),
@@ -82,7 +87,7 @@ end
 
 
 //***** output
-assign granto = c_grant;
+assign granto = c_grant[PORT-1:0];
 
 endmodule
 
