@@ -25,4 +25,6 @@
 #set DEFAULT_DESIGN = "gray_cnt"
 #set DEFAULT_DESIGN = "oneshot"
 
-set DEFAULT_DESIGN = "rr_arbiter"
+#set DEFAULT_DESIGN = "rr_arbiter"
+
+set DEFAULT_DESIGN = "lru"
