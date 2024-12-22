@@ -161,7 +161,6 @@ initial begin
   if ( MEM_FILE != "none" ) begin
     $readmemh(MEM_FILE, ram_reg);
   end else begin
-    rdata = `ZERO(DATA);
     foreach ( ram_reg[i] ) begin
       ram_reg[i] = {DATA{1'b0}};
     end
