@@ -49,7 +49,7 @@ for (gi = 0; gi < IN; gi = gi + 1 ) begin : gen_const
 end
 endgenerate
 
-assign valid = |in_act;
+assign valid = (|in_act) ? ACT : !ACT;
 selector #(
   .MODE   ( 1'b1 ), // vector mode
   .DATA   ( OUT ),
