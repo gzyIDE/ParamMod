@@ -1,7 +1,7 @@
 /*
 * <pri_enc.sv>
 * 
-* Copyright (c) 2023 Yosuke Ide <gizaneko@outlook.jp>
+* Copyright (c) 2024 Yosuke Ide <gizaneko@outlook.jp>
 * 
 * This software is released under the MIT License.
 * http://opensource.org/licenses/mit-license.php
@@ -14,7 +14,7 @@ module pri_enc #(
   parameter IN  = 32,
   parameter ACT = `HIGH,
   parameter MSB = `ENABLE,
-  // constant
+  // auto
   parameter OUT = $clog2(IN)
 )(
   input wire [IN-1:0]    in,
@@ -22,78 +22,45 @@ module pri_enc #(
   output wire [OUT-1:0]  out
 );
 
-//***** internal parameter
-localparam ENABLE = ACT ? `ENABLE: `ENABLE_;
-localparam DISABLE = ACT ? `DISABLE : `DISABLE_;
+wire [IN-1:0]           in_act;
+wire [IN-1:0]           sel;
+wire [IN-1:0][OUT-1:0]  out_const;
 
+assign in_act = ACT ? in : ~in;
 
-//***** assign output
-assign valid = ACT ? |in      ? ENABLE : DISABLE
-             :       !( &in ) ? ENABLE : DISABLE;
-
-
-//***** MSB/LSB select
-wire [IN-1:0]   sel_in;
-selector #(
-  .MODE     ( `HIGH ), // bit vector
-  .DATA     ( 1 ),
-  .IN       ( IN ),
-  .ACT      ( ACT ),
-  .MSB      ( MSB )
-) selector (
-  .in       ( `ZERO(IN) ), // dummy
-  .sel      ( in ),
-  .pos      ( sel_in )
-);
-
-
-//***** Generate Mask (Output Constant)
-function [IN-1:0] gen_mask;
-  input int    blk;
-  input int    ofs;
-  int      i, j;
-  begin
-    for ( i = 0; i < IN; i = i + ( blk * 2 ) ) begin
-      for ( j = 0; j < blk; j = j + 1 ) begin
-        if ( i + j > ofs ) begin
-          gen_mask[i+j] = ENABLE;
-        end else begin
-          gen_mask[i+j] = DISABLE;
-        end
-      end
-      for ( j = 0; j < blk; j = j + 1 ) begin
-        gen_mask[i+j+blk] = DISABLE;
-      end
-    end
-  end
-endfunction
-
-
-//***** body of priority encoder
 generate
-  genvar gi, gj;
-  for (gi = 0; gi < OUT; gi = gi + 1 ) begin : LP_out
-    //wor      out_wor;   // wor in generate loop may cause
-                          //   error in some compilers (such as ixcom) due to 
-                          //   multiple drivers for a wired-or net
-    //assign out[gi] = out_wor;
-    wire [IN-1:1]  out_wor;
-    assign out[gi] = |out_wor;
+genvar gi;
+if ( MSB ) begin : gen_msbf
+  assign sel[IN-1] = in_act[IN-1];
 
-    for ( gj = 1; gj < IN; gj = gj + 1 ) begin : LP_in
-      if ( (gj >> gi) & 1'b1 ) begin : IF_Act
-        bit [IN-1:0]      mask;
-        assign mask = gen_mask((1<<(gi)), gj);
-        //assign out_wor = 
-        assign out_wor[gj] =
-          ACT 
-            ? !( |( mask & sel_in ) ) && sel_in[gj]
-            : ( &( mask | sel_in ) ) && !sel_in[gj];
-      end else begin
-        assign out_wor[gj] = `LOW;
-      end
-    end
+  for (gi = IN-2; gi >= 0; gi = gi - 1 ) begin
+    assign sel[gi] = !(|in_act[IN-1:gi+1]) && in_act[gi];
   end
+end else begin : gen_lsbf
+  assign sel[0] = in_act[0];
+
+  for ( gi = 1; gi < IN; gi = gi + 1 ) begin
+    assign sel[gi] = !(|in_act[gi-1:0]) && in_act[gi];
+  end
+end
+
+for (gi = 0; gi < IN; gi = gi + 1 ) begin : gen_const
+  assign out_const[gi] = gi;
+end
 endgenerate
+
+assign valid = |in_act;
+selector #(
+  .MODE   ( 1'b1 ), // vector mode
+  .DATA   ( OUT ),
+  .IN     ( IN ),
+  .ACT    ( `HIGH )
+) select_out (
+  .in     ( out_const ),
+  .sel    ( sel ),
+  .valid  (),
+  .pos    (),
+  .out    ( out )
+);
 
 endmodule

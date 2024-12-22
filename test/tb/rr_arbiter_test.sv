@@ -8,6 +8,7 @@ parameter PORT = 4;
 //***** input port connection
 logic clk;
 logic [PORT-1:0] req;
+logic stall;
 logic reset;
 
 //***** output port connection
@@ -20,6 +21,7 @@ rr_arbiter #(
 ) rr_arbiter0 (
   .clk ( clk ),
   .req ( req ),
+  .stall ( stall ),
   .reset ( reset ),
   .granto ( granto )
 );
@@ -33,6 +35,7 @@ initial begin
   clk <= 'h0;
   req <= 'h0;
   reset <= 'h1;
+  stall <= 'h0;
   repeat(5) @(posedge clk);
   reset <= 'h0;
   repeat(5) @(posedge clk);
@@ -48,6 +51,9 @@ initial begin
   req <= 4'b0001; // grant req0
   @(posedge clk);
   req <= 4'b0011; // grant req1
+  stall <= 1'b1;
+  repeat(4) @(posedge clk);
+  stall <= 1'b0;
   @(posedge clk);
   req <= 4'b0110; // grant req2
   @(posedge clk);

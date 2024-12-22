@@ -26,13 +26,8 @@ set setup_source = 1
 set setup_design = 1
 set allow_setup_design_overwrite = 0
 
-### directories to be skipped
-set skip_word = (\
-	bkp \
-	gomi \
-	template \
-	sv2v \
-)
+### directories to be ignored
+source config.sh
 
 ### verilog source file extension (default v, sv)
 #	extention without "."
@@ -71,7 +66,7 @@ endif
 ##### find command setup
 ### set find options for skipped list
 set grep_skip = ""
-foreach skip ($skip_word)
+foreach skip ($ignored_directory)
 	#set find_skip = "$find_skip -not -path "'"*'"$skip"'*" '
 	#set find_skip = "$find_skip -name "'"*'"$skip"'*" -prune '
 	set grep_skip = "$grep_skip| grep -v $skip "

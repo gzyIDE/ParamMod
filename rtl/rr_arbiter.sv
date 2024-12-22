@@ -19,6 +19,7 @@ module rr_arbiter #(
 )(
   input wire              clk,
   input wire              reset,
+  input wire              stall,
 
   input wire [PORT-1:0]   req,
   output wire [PORT-1:0]  granto
@@ -81,7 +82,8 @@ always_ff @(posedge clk) begin
   if ( reset ) begin
     r_prev <= `ZERO(IDX);
   end else begin
-    r_prev <= c_req_exist ? c_prev_idx : r_prev;
+    r_prev <= !stall && c_req_exist ? c_prev_idx 
+            :                         r_prev;
   end
 end
 
