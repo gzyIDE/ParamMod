@@ -89,7 +89,7 @@ end
 
 
 //***** output
-assign granto = c_grant[PORT-1:0] && !stall;
+assign granto = c_grant[PORT-1:0] & {PORT{!stall}};
 
 endmodule
 
