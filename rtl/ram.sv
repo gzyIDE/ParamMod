@@ -14,6 +14,7 @@
 // </asciidoc>
 
 `include "parammod_stddef.vh"
+`include "parammod_bitexpr.svh"
 
 module ram #(
   // <asciidoc>

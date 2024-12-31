@@ -1,5 +1,5 @@
 /*
-* <stddef.vh>
+* <parammod_stddef.vh>
 * 
 * Copyright (c) 2023 Yosuke Ide <gizaneko@outlook.jp>
 * 
@@ -32,7 +32,6 @@
 `define HIZ         1'bz
 
 
-
 //***** Bit width expression
 `define BYTE        8
 `define HWORD       16
@@ -46,14 +45,12 @@
 `define QWORD_R     127:0
 
 
-
 //***** Useful Macros
 //*** Zero/One of specified width
 `define ZERO(W)             {W{1'b0}}
 `define ONE(W)              {{W-1{1'b0}}, 1'b1}
 `define SETALL(W)           {W{1'b1}}
-//*** range expression for generate, always, function
-`define RANGE(Idx,W)        (Idx)*(W)+:(W)                  // range expression (recommended)
+`define FULL(W)             {W{1'b1}}
 //*** standard expression for convenience
 `define MAX(A,B)            (A>B)?A:B                       // Return larger of the two
 `define MIN(A,B)            (A<B)?A:B                       // Return smaller of the two
