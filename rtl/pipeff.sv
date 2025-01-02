@@ -12,13 +12,15 @@ module pipeff #(
   parameter DATA = 32
 )(
   input wire              clk,
+  input wire              reset,
   input wire              stall,
   input wire [DATA-1:0]   in,
   output reg [DATA-1:0]  out
 );
 
 always_ff @(posedge clk) begin
-  out  <= !stall ? in 
+  out  <= reset  ? {DATA{1'b0}}
+        : !stall ? in 
         :          out;
 end
 endmodule

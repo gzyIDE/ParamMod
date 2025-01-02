@@ -8,10 +8,8 @@
 #set DEFAULT_DESIGN = "cam2"
 #set DEFAULT_DESIGN = "shifter"
 #set DEFAULT_DESIGN = "regfile"
-
 #set DEFAULT_DESIGN = "freelist"
 #set DEFAULT_DESIGN = "selector"
-
 #set DEFAULT_DESIGN = "bin_dec"
 #set DEFAULT_DESIGN = "sel_minmax"
 #set DEFAULT_DESIGN = "stack"
@@ -21,10 +19,8 @@
 #set DEFAULT_DESIGN = "block_shift"
 #set DEFAULT_DESIGN = "ram"
 #set DEFAULT_DESIGN = "lsfr"
-
 #set DEFAULT_DESIGN = "gray_cnt"
 #set DEFAULT_DESIGN = "oneshot"
-
 #set DEFAULT_DESIGN = "rr_arbiter"
-
-set DEFAULT_DESIGN = "lru"
+#set DEFAULT_DESIGN = "lru"
+set DEFAULT_DESIGN = "pipeff"
