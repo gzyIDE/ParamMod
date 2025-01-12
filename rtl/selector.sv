@@ -12,12 +12,12 @@
 module selector #(
   parameter bit MODE      = `LOW,     // 0: index, 1: bit vector
   parameter int DATA      = 5,        // width of single element
-  parameter int IN        = 64,       // # of input element
+  parameter int IN        = 32,       // # of input element
   parameter bit ACT       = `LOW,     // Active High/Low
   parameter bit MSB       = `DISABLE, // select from Most Sifnificant Elements
   // constant
   parameter int LOG2_IN   = $clog2(IN),
-  parameter int POS       = MODE ? IN : 1 << IN,
+  parameter int POS       = IN,
   parameter int SEL_WIDTH = MODE ? IN : LOG2_IN // selector width
 ) (
   input wire [IN-1:0][DATA-1:0] in,
@@ -123,9 +123,7 @@ module selector #(
         );
       end else if ( 2 * gi < IN ) begin : elmh
         //* one element is valid
-        wire [LOG2_IN-1:0]  pos1;
-        assign pos1    = gi*2;
-        assign res[gi] = {pos1, in[gi*2]};
+        assign res[gi] = in[gi*2];
         if ( ACT ) begin : IF_acth
           assign sel_res[gi] = MODE ? (sel[gi*2] == ENABLE)
                              :        (sel == (gi*2));
